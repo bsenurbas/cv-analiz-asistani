@@ -1,78 +1,79 @@
-\# Yapay Zeka Destekli CV Analiz Asistanı
+---
 
+#  Yapay Zeka Destekli CV Analiz Asistanı
 
+> **Kocaeli Üniversitesi** — Yazılım Mühendisliği Bölümü  
+> **Bitirme Tezi & Veri Madenciliği Dönem Projesi** — 2026
 
-> Kocaeli Üniversitesi — Yazılım Mühendisliği Bölümü  
+---
 
-> Bitirme Tezi \& Veri Madenciliği Dönem Projesi — 2026
+##  Proje Hakkında
 
+Bu proje, ham CV metinlerini (PDF, Docx vb.) NLP teknikleriyle işleyerek yapılandırılmış veriye dönüştüren, adayları iş ilanlarıyla semantik ve istatistiksel yöntemlerle eşleştiren yapay zeka destekli bir **Karar Destek Sistemi**'dir. Sistem, eşleştirme sonuçlarını sadece puanlamakla kalmaz, açıklanabilir (explainable AI) çıktılar sunar.
 
+---
 
-\## Proje Hakkında
+##  Ekip
 
+| İsim | Rol | Uzmanlık Alanı |
+| :--- | :--- | :--- |
+| **Buse Nur Baş** | Backend & AI Ops | LLM/MCP Entegrasyonu, API Geliştirme |
+| **Sude Çokyaşar** | Data & Frontend | Veri İşleme, RAG Mimarisi, UI Tasarımı |
 
+---
 
-Ham CV metinlerini yapılandırılmış veriye dönüştüren, iş ilanlarıyla anlamlı biçimde eşleştiren ve bu eşleştirmeleri açıklanabilir çıktılarla sunan yapay zeka destekli bir karar destek sistemi.
+##  Teknoloji Yığını
 
+### **Altyapı & Platform**
+* **Platform:** [Dify](https://dify.ai/) (Self-hosted)
+* **LLM:** Anthropic Claude API
+* **Vektör Veritabanı:** ChromaDB (Semantik arama için)
 
+### **Veri Madenciliği & Analitik**
+* **Baseline Model:** TF-IDF (scikit-learn)
+* **Diller:** Python 3.x
+* **Metrikler:** NDCG, F1-Score, Pearson Korelasyonu
 
-\## Ekip
+### **Arayüz**
+* **UI:** Streamlit
 
+---
 
+##  Klasör Yapısı
 
-| İsim | Rol |
-
-|---|---|
-
-| Buse Nur Baş | Backend, LLM/MCP, API |
-
-| Sude Çokyaşar | Veri, RAG, UI |
-
-
-
-\## Teknoloji Yığını
-
-
-
-\- \*\*Platform:\*\* Dify (self-host)
-
-\- \*\*LLM:\*\* Anthropic Claude API
-
-\- \*\*Vektör DB:\*\* ChromaDB
-
-\- \*\*Baseline Model:\*\* TF-IDF (scikit-learn)
-
-\- \*\*UI:\*\* Streamlit
-
-\- \*\*Ölçüm:\*\* Python (NDCG, F1, Pearson)
-
-
-
-\## Klasör Yapısı
-
+```bash
 cv-analiz-asistani/
-
 ├── data/
+│   ├── raw/            # Ham CV ve iş ilanı dosyaları (PDF/TXT)
+│   └── processed/      # Temizlenmiş ve JSON formatına dönüştürülmüş veriler
+├── notebooks/          # EDA (Keşifçi Veri Analizi) ve Model deneyleri
+├── src/                # Python kaynak kodları (Processing, Matching, API)
+├── visuals/            # Veri görselleştirme ve analiz grafikleri
+├── reports/            # Akademik raporlar ve sonuç analizleri
+├── docs/               # Anket sonuçları, literatür taraması ve ek belgeler
+└── README.md           # Proje ana dökümantasyonu
+```
 
-│   ├── raw/          # Ham CV ve iş ilanı dosyaları
+---
 
-│   └── processed/    # JSON'a dönüştürülmüş veriler
+##  Yapay Zeka ve Model Kullanımı
 
-├── notebooks/        # Jupyter notebook'lar (EDA)
+Projenin temelinde hibrit bir yaklaşım yatmaktadır:
 
-├── src/              # Python kaynak kodları
+1.  **Yapılandırma:** Claude API kullanılarak karmaşık CV formatları standart JSON şemalarına dönüştürülür.
+2.  **RAG (Retrieval-Augmented Generation):** ChromaDB ve Dify kullanılarak iş tanımına en uygun adayların getirilmesi sağlanır.
+3.  **Açıklanabilirlik:** Yapay zeka, bir adayın neden belirli bir işe uygun olduğunu veya hangi yetkinliklerinin eksik olduğunu gerekçelendirir.
 
-├── visuals/          # Grafik çıktıları
+> [!TIP]
+> Detaylı metodoloji ve model performans analizleri için `reports/` klasöründeki teknik raporları inceleyebilirsiniz.
 
-├── reports/          # Final raporları
+---
 
-└── docs/             # Anket sonuçları, ek belgeler
+### **Kurulum (Önizleme)**
+```bash
+# Depoyu klonlayın
+git clone https://github.com/kullaniciadi/cv-analiz-asistani.git
 
-## Kullanılan Yapay Zeka Araçları
-
-
-
-Bu projede Dify platformu ve Anthropic Claude API, CV yapılandırma ve eşleştirme gerekçelendirmesi aşamalarında kullanılmıştır. Detaylar için `reports/` klasörüne bakınız.
-
-
-
+# Gerekli kütüphaneleri yükleyin
+pip install -r requirements.txt
+```
