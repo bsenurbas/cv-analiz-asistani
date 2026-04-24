@@ -71,7 +71,7 @@ Projenin temelinde hibrit bir yaklaşım yatmaktadır:
 ### **Kurulum (Önizleme)**
 ```bash
 # Depoyu klonlayın
-git clone https://github.com/kullaniciadi/cv-analiz-asistani.git
+git clone https://github.com/bsenurbas/cv-analiz-asistani.git
 
 # Gerekli kütüphaneleri yükleyin
 pip install -r requirements.txt
