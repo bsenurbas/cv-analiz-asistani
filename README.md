@@ -1,4 +1,3 @@
----
 
 #  Yapay Zeka Destekli CV Analiz Asistanı
 
