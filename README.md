@@ -16,8 +16,8 @@ Bu proje, ham CV metinlerini (PDF, Docx vb.) NLP teknikleriyle işleyerek yapıl
 
 | İsim | Rol | Uzmanlık Alanı |
 | :--- | :--- | :--- |
-| **Buse Nur Baş** | Backend & AI Ops | LLM/MCP Entegrasyonu, API Geliştirme |
-| **Sude Çokyaşar** | Data & Frontend | Veri İşleme, RAG Mimarisi, UI Tasarımı |
+| **Buse Nur Baş - 220229015** | Backend & AI Ops | LLM/MCP Entegrasyonu, API Geliştirme |
+| **Sude Çokyaşar - 220229033** | Data & Frontend | Veri İşleme, RAG Mimarisi, UI Tasarımı |
 
 ---
 
