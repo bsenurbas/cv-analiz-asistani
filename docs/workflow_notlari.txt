@@ -1,0 +1,1 @@
+Dify CV Yapçlandçrma workflow kuruldu. Model: claude-sonnet-4-20250514. Input: cv_metni, Output: cv_json 
