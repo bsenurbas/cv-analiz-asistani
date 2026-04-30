@@ -1,0 +1,631 @@
+[
+  {
+    "id": 1,
+    "kisisel": {
+      "isim": "Information Technology Technician I",
+      "sehir": "City, State"
+    },
+    "egitim": [
+      {
+        "kurum": "Florida International Univeristy",
+        "bolum": "Information Technology",
+        "derece": "Bachelor of Science",
+        "baslangic": 2001,
+        "bitis": 2005
+      }
+    ],
+    "deneyim": [
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Information Technology Technician I",
+        "baslangic": 2007,
+        "bitis": null,
+        "sure_ay": 224,
+        "gorevler": [
+          "Migrating and managing user accounts in Microsoft Office 365",
+          "Creating and managing virtual machines in Azure",
+          "Installing and configuring StorSimple iSCSI cloud array",
+          "Collaborating on Disaster Recovery plan"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Information Services Liaison",
+        "baslangic": 2005,
+        "bitis": 2007,
+        "sure_ay": 24,
+        "gorevler": [
+          "Troubleshooting hardware and software problems",
+          "Maintaining websites on Microsoft SharePoint Server",
+          "Administering end user accounts in Active Directory"
+        ]
+      }
+    ],
+    "teknik_beceriler": [
+      "Active Directory", "Azure", "PowerShell", "VBScript", "VMWare", "Exchange", "SQL", "Linux", "Windows Server"
+    ],
+    "diller": [],
+    "toplam_deneyim_yil": 20.6
+  },
+  {
+    "id": 2,
+    "kisisel": {
+      "isim": "Information Technology Manager",
+      "sehir": "City, State"
+    },
+    "egitim": [
+      {
+        "kurum": "Walden University",
+        "bolum": "Leadership",
+        "derece": "Master of Science",
+        "baslangic": 2013,
+        "bitis": 2015
+      },
+      {
+        "kurum": "Walden University",
+        "bolum": "Information Systems Management",
+        "derece": "Master of Science",
+        "baslangic": 2011,
+        "bitis": 2013
+      }
+    ],
+    "deneyim": [
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Information Technology Manager",
+        "baslangic": 2013,
+        "bitis": null,
+        "sure_ay": 156,
+        "gorevler": [
+          "Manages application database/hardware systems",
+          "Maintains LAN/WAN infrastructure and security",
+          "Designed and implemented network infrastructure enhancements",
+          "Established a helpdesk support system"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Network Analyst",
+        "baslangic": 1987,
+        "bitis": 2012,
+        "sure_ay": 298,
+        "gorevler": [
+          "Led a team of five network specialists",
+          "Configured Nortel and Juniper networks",
+          "Implemented thin client solutions",
+          "Planned and designed wireless networks"
+        ]
+      }
+    ],
+    "teknik_beceriler": [
+      "Network Engineering", "Disaster Recovery", "Project Management", "SCCM", "SQL", "Cisco", "Nortel", "ERP"
+    ],
+    "diller": [],
+    "toplam_deneyim_yil": 37.8
+  },
+  {
+    "id": 3,
+    "kisisel": {
+      "isim": "Lead Instructional Designer",
+      "sehir": "City, State"
+    },
+    "egitim": [
+      {
+        "kurum": "EMBRY RIDDLE AERONAUTICAL UNIVERSITY",
+        "bolum": "Professional Aeronautics",
+        "derece": "Bachelor of Science",
+        "baslangic": null,
+        "bitis": 2000
+      }
+    ],
+    "deneyim": [
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Lead Instructional Designer",
+        "baslangic": 2015,
+        "bitis": 2017,
+        "sure_ay": 22,
+        "gorevler": [
+          "Completed POAM and critical training task analysis for Navy courses",
+          "Developed an excel program to reduce production time by 33%",
+          "Designed a course to incorporate 3D modeling engines",
+          "Wrote a diesel engine maintenance course"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Senior Training Manager",
+        "baslangic": 2010,
+        "bitis": 2015,
+        "sure_ay": 57,
+        "gorevler": [
+          "Identified students with learning barriers and implemented training plans",
+          "Coordinated upgrading of obsolete training devices",
+          "Spearheaded the redesign of Kiowa helicopter weapon training",
+          "Updated the US Army's 15J Professional Development Map"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Operations Manager",
+        "baslangic": 2007,
+        "bitis": 2010,
+        "sure_ay": 31,
+        "gorevler": [
+          "Wrote operating procedures for helicopter recovery and convoy operations",
+          "Developed annual training plans for a 750 person unit",
+          "Utilized battle tracking systems in the organization's control center"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Personnel and Maintenance Manager",
+        "baslangic": 2005,
+        "bitis": 2007,
+        "sure_ay": 24,
+        "gorevler": [
+          "Coordinated scheduling for helicopter ranges and parachuting operations",
+          "Trained subordinates on electrical and mechanical systems",
+          "Prioritized maintenance for 28 helicopter armament systems"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Maintenance Supervisor",
+        "baslangic": 2000,
+        "bitis": 2005,
+        "sure_ay": 65,
+        "gorevler": [
+          "Conducted R&D and testing of new aviation armament equipment",
+          "Developed night vision device driver training course",
+          "Trained persons on safety and security for machine gun systems"
+        ]
+      }
+    ],
+    "teknik_beceriler": [
+      "3D modeling", "Budget analysis", "Job analysis", "Microsoft Office", "Program management", "Technical manuals"
+    ],
+    "diller": [],
+    "toplam_deneyim_yil": 16.7
+  },
+  {
+    "id": 4,
+    "kisisel": {
+      "isim": "Senior Product Designer",
+      "sehir": "City, State"
+    },
+    "egitim": [
+      {
+        "kurum": "Williamsport Area Community College",
+        "bolum": "Advertising Art",
+        "derece": "Associate of Arts",
+        "baslangic": 1977,
+        "bitis": 1979
+      },
+      {
+        "kurum": "Jersey Shore Area Senior High School",
+        "bolum": "Academic Courses",
+        "derece": "Graduate",
+        "baslangic": 1973,
+        "bitis": 1977
+      }
+    ],
+    "deneyim": [
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Senior Product Designer",
+        "baslangic": 1984,
+        "bitis": null,
+        "sure_ay": 504,
+        "gorevler": [
+          "Developed patentable items and expanded product lines",
+          "Created solid model component and assembly files",
+          "Coordinated project tooling release of injection molded components",
+          "Created detailed engineering drawings and schematics"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Draftsman, Layout Estimating",
+        "baslangic": 1983,
+        "bitis": 1984,
+        "sure_ay": 15,
+        "gorevler": [
+          "Detailed shop drawings of bridge expansion systems",
+          "Made templates from engineering drawings for shop usage",
+          "Calculated shipping weights and created bills-of-lading"
+        ]
+      }
+    ],
+    "teknik_beceriler": [
+      "AutoCAD", "Solid Works", "3d Solid Modeling", "Injection molded plastic", "Corel Draw", "Website Development"
+    ],
+    "diller": [],
+    "toplam_deneyim_yil": 43.3
+  },
+  {
+    "id": 5,
+    "kisisel": {
+      "isim": "Engineering Technician II",
+      "sehir": "City, State"
+    },
+    "egitim": [
+      {
+        "kurum": "Arizona State University",
+        "bolum": "Engineering Management",
+        "derece": "Bachelor of Science",
+        "baslangic": null,
+        "bitis": 2020
+      },
+      {
+        "kurum": "Saint Petersburg College",
+        "bolum": "ESOL",
+        "derece": "Program Certificate",
+        "baslangic": 2009,
+        "bitis": 2010
+      },
+      {
+        "kurum": "Chemical and Textile School",
+        "bolum": "Chemical Technician",
+        "derece": "Associate of Science",
+        "baslangic": 1989,
+        "bitis": 1993
+      }
+    ],
+    "deneyim": [
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Engineering Technician II",
+        "baslangic": 2012,
+        "bitis": null,
+        "sure_ay": 170,
+        "gorevler": [
+          "Initiated statistical analysis projects adopted by RX Labs",
+          "Collaborated on Water Savings and Nidek tinting projects",
+          "Executed root cause analysis to improve yield and reliability",
+          "Produced accurate design documentation for HC and spin coat processes"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "HMC HC Laboratory Assistant III",
+        "baslangic": 2005,
+        "bitis": 2009,
+        "sure_ay": 48,
+        "gorevler": [
+          "Established coating formulations and processes for HC Machines",
+          "Responsible for blending procedures and analyzing chemical properties",
+          "Trained laboratory staff and provided technical support"
+        ]
+      }
+    ],
+    "teknik_beceriler": [
+      "Calibration", "Chemical Engineering", "Troubleshooting", "Validation", "SOP", "Microsoft Excel", "Project Management"
+    ],
+    "diller": [],
+    "toplam_deneyim_yil": 23.2
+  },
+  {
+    "id": 6,
+    "kisisel": {
+      "isim": "Maintenance Engineering Co-Op",
+      "sehir": "City, State"
+    },
+    "egitim": [
+      {
+        "kurum": "Western Michigan University",
+        "bolum": "Mechanical Engineering",
+        "derece": "Master of Science",
+        "baslangic": null,
+        "bitis": 2019
+      },
+      {
+        "kurum": "Dayananda Sagar College of Engineering",
+        "bolum": "Automotive Engineering",
+        "derece": "Bachelor of Engineering",
+        "baslangic": null,
+        "bitis": 2017
+      }
+    ],
+    "deneyim": [
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Maintenance Engineering Co-Op",
+        "baslangic": 2019,
+        "bitis": 2019,
+        "sure_ay": 10,
+        "gorevler": [
+          "Functioned as facility CMMS technical expert for IBM Maximo 7.6",
+          "Created, assigned and scheduled Preventive Maintenance (PM) plans",
+          "Studied downtime trends using Maximo and SharePoint",
+          "Implement 5S Methodology in toolroom"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Mechanical Intern",
+        "baslangic": 2016,
+        "bitis": 2016,
+        "sure_ay": 1,
+        "gorevler": [
+          "Fixed design errors for vehicle transmission units using SolidWorks",
+          "Registered data for FMEA and Bill of Materials (BOM)"
+        ]
+      }
+    ],
+    "teknik_beceriler": [
+      "IBM Maximo 7.6", "AutoCAD", "SolidWorks", "ANSYS", "PFMEA", "Lean Manufacturing", "GD&T", "Catia", "Oracle"
+    ],
+    "diller": [],
+    "toplam_deneyim_yil": 1.6
+  },
+  {
+    "id": 7,
+    "kisisel": {
+      "isim": "Sleep Technologist, RPSGT",
+      "sehir": "City, State"
+    },
+    "egitim": [
+      {
+        "kurum": "University of Wisconsin",
+        "bolum": "Healthcare Information Management & Technology",
+        "derece": "Bachelor of Science",
+        "baslangic": 1999,
+        "bitis": 2017
+      },
+      {
+        "kurum": "Hannibal La-Grange University",
+        "bolum": "Respiratory Therapy",
+        "derece": "Applied Associates Degree of Science",
+        "baslangic": null,
+        "bitis": 2000
+      }
+    ],
+    "deneyim": [
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Sleep Technologist, RPSGT",
+        "baslangic": 2015,
+        "bitis": null,
+        "sure_ay": 124,
+        "gorevler": [
+          "Polysomnogram preparation and diagnostic testing",
+          "PAP and oxygen titration studies",
+          "Monitoring and scoring patient studies using AASM standards",
+          "Interscore Reliability Testing average of 92%"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Neurophysiology Technician, RPSGT",
+        "baslangic": 2009,
+        "bitis": 2015,
+        "sure_ay": 82,
+        "gorevler": [
+          "Performing EEG and LTM",
+          "Measuring in 10-20, patient preparation and education",
+          "Calibrate equipment prior to testing following AASM protocol",
+          "Billing patients in outpatient sleep center"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Healthcare Specialist, CRT",
+        "baslangic": 2005,
+        "bitis": 2008,
+        "sure_ay": 39,
+        "gorevler": [
+          "Clinical patient evaluation in home setting",
+          "Implement disease management programs",
+          "Respiratory and sleep equipment set up and education"
+        ]
+      }
+    ],
+    "teknik_beceriler": [
+      "RPSGT License", "AASM Standards", "EEG", "Polysomnogram", "Oxygen Titration", "Medical Terminology", "Windows OS", "EHR"
+    ],
+    "diller": [],
+    "toplam_deneyim_yil": 20.4
+  },
+  {
+    "id": 8,
+    "kisisel": {
+      "isim": "Healthcare Consultant / Army Sergeant",
+      "sehir": "City, State"
+    },
+    "egitim": [
+      {
+        "kurum": "Winter Park High School",
+        "bolum": "General",
+        "derece": "High School Diploma",
+        "baslangic": null,
+        "bitis": 2004
+      }
+    ],
+    "deneyim": [
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Healthcare Consultant",
+        "baslangic": 2016,
+        "bitis": 2016,
+        "sure_ay": 5,
+        "gorevler": [
+          "Introduce patients to EEG monitoring training program",
+          "Set up computer, software, and Brainmaster Discovery 24E",
+          "Troubleshoot equipment and software",
+          "Coach individuals through initial brain mapping"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Healthcare Consultant (International)",
+        "baslangic": 2016,
+        "bitis": 2016,
+        "sure_ay": 3,
+        "gorevler": [
+          "Provide full-spectrum multi-system detoxification planning",
+          "Educate individuals about toxins and heavy metal contamination",
+          "Medical Investment Management for high net worth individuals"
+        ]
+      },
+      {
+        "sirket": "Army",
+        "pozisyon": "Emergency Care Sergeant / Squad Leader",
+        "baslangic": 2004,
+        "bitis": 2015,
+        "sure_ay": 136,
+        "gorevler": [
+          "Instructor/Writer for Combat Medic Advanced Individual Training",
+          "Supervise records management and equipment maintenance",
+          "Manage medical equipment sets valued over $100,000",
+          "Designed mass casualty evacuation SOP adopted by brigade"
+        ]
+      }
+    ],
+    "teknik_beceriler": [
+      "Project Management", "Emergency Care", "TCCC", "CPR/BLS", "Mass Casualty Management", "Logistics", "Microsoft Office", "Network Administration"
+    ],
+    "diller": [
+      {
+        "dil": "English",
+        "seviye": "Fluent"
+      },
+      {
+        "dil": "Chinese",
+        "seviye": "Basic"
+      }
+    ],
+    "toplam_deneyim_yil": 11.2
+  },
+  {
+    "id": 9,
+    "kisisel": {
+      "isim": "Co-owner/Executive Chef & Director of Purchasing",
+      "sehir": "City, State"
+    },
+    "egitim": [
+      {
+        "kurum": "LE CORDON BLEU COLLEGE OF CULINARY ARTS",
+        "bolum": "Culinary Management",
+        "derece": "Bachelor of Arts",
+        "baslangic": 2008,
+        "bitis": 2012
+      }
+    ],
+    "deneyim": [
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Director of Purchasing",
+        "baslangic": 2009,
+        "bitis": null,
+        "sure_ay": 206,
+        "gorevler": [
+          "Formulate supplier inventory and pricing database using BirchStreet",
+          "Manage student supplies and inventory distribution",
+          "Maintain receiving records within database and excel",
+          "Analyze and prioritize issues regarding procurement"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Co-owner/Executive Chef",
+        "baslangic": 2010,
+        "bitis": 2017,
+        "sure_ay": 82,
+        "gorevler": [
+          "Successfully manage a cafe style restaurant",
+          "Plan menus and estimate food and beverage costs",
+          "Manage financial areas including budgeting and payroll",
+          "Hiring and training of employees"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Catastrophe Insurance Claims Adjuster",
+        "baslangic": 2004,
+        "bitis": 2009,
+        "sure_ay": 60,
+        "gorevler": [
+          "Handled 100-200 claims directly with the insured",
+          "Manage high stress and anxiety situations"
+        ]
+      }
+    ],
+    "teknik_beceriler": [
+      "Food-Trak", "BirchStreet", "Excel", "Strategic planning", "Budget Management", "Vendor Negotiations"
+    ],
+    "diller": [],
+    "toplam_deneyim_yil": 22.3
+  },
+  {
+    "id": 10,
+    "kisisel": {
+      "isim": "Executive Chef",
+      "sehir": "City, State"
+    },
+    "egitim": [
+      {
+        "kurum": "Le Cordon Bleu College of Culinary Arts Atlanta",
+        "bolum": "Culinary",
+        "derece": "Associate of Occupational Science Degree",
+        "baslangic": null,
+        "bitis": null
+      }
+    ],
+    "deneyim": [
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Executive Chef",
+        "baslangic": 2014,
+        "bitis": null,
+        "sure_ay": 146,
+        "gorevler": [
+          "Acting manager of staff of 50+ employees",
+          "Purchasing/ managing inventory for daily menus",
+          "Maintain a budget of 2.5M",
+          "Regularly developed new recipes"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "R&D Executive Chef",
+        "baslangic": 2013,
+        "bitis": 2013,
+        "sure_ay": 7,
+        "gorevler": [
+          "Creating and testing recipes",
+          "Designing new menus for corporate leadership",
+          "Communicating with dietitians to match health standards"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Head Chef",
+        "baslangic": 2011,
+        "bitis": 2013,
+        "sure_ay": 19,
+        "gorevler": [
+          "Manager of staff of 100 employees",
+          "Maintain a budget of 5.5M",
+          "Estimated staffing needs and adjusted schedules"
+        ]
+      },
+      {
+        "sirket": "Company Name",
+        "pozisyon": "Sous Chef",
+        "baslangic": 2010,
+        "bitis": 2011,
+        "sure_ay": 12,
+        "gorevler": [
+          "Controlled purchasing of food and equipment",
+          "Effective management team leader"
+        ]
+      }
+    ],
+    "teknik_beceriler": [
+      "ServSafe certified", "Inventory management", "Menu design", "Budgeting", "Microsoft Office", "Public speaking"
+    ],
+    "diller": [],
+    "toplam_deneyim_yil": 15.6
+  }
+]
