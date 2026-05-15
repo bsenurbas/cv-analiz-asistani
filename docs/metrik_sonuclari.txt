@@ -24,3 +24,11 @@ CV 10:  83.3%  (5/6 alan)
 GENEL DOĞRULUK: 86.7%
 Hedef (H1):     ≥ %85
 Durum:          BAŞARILI
+
+
+H2 ve H3 Metrikleri — TF-IDF Model
+========================================
+Pearson Korelasyon: r = 0.079
+NDCG@5:             0.894
+H2 (≥ 0.70): HEDEFIN ALTINDA
+H3 (≥ 0.60): BASARILI
