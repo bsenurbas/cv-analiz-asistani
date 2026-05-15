@@ -9,7 +9,7 @@
       {
         "kurum": "Florida International Univeristy",
         "bolum": "Information Technology",
-        "derece": "Bachelor of Science",
+        "derece": "Lisans",
         "baslangic": 2001,
         "bitis": 2005
       }
@@ -42,7 +42,15 @@
       }
     ],
     "teknik_beceriler": [
-      "Active Directory", "Azure", "PowerShell", "VBScript", "VMWare", "Exchange", "SQL", "Linux", "Windows Server"
+      "Active Directory",
+      "Azure",
+      "PowerShell",
+      "VBScript",
+      "VMWare",
+      "Exchange",
+      "SQL",
+      "Linux",
+      "Windows Server"
     ],
     "diller": [],
     "toplam_deneyim_yil": 20.6
@@ -57,14 +65,14 @@
       {
         "kurum": "Walden University",
         "bolum": "Leadership",
-        "derece": "Master of Science",
+        "derece": "Yüksek Lisans",
         "baslangic": 2013,
         "bitis": 2015
       },
       {
         "kurum": "Walden University",
         "bolum": "Information Systems Management",
-        "derece": "Master of Science",
+        "derece": "Yüksek Lisans",
         "baslangic": 2011,
         "bitis": 2013
       }
@@ -98,7 +106,14 @@
       }
     ],
     "teknik_beceriler": [
-      "Network Engineering", "Disaster Recovery", "Project Management", "SCCM", "SQL", "Cisco", "Nortel", "ERP"
+      "Network Engineering",
+      "Disaster Recovery",
+      "Project Management",
+      "SCCM",
+      "SQL",
+      "Cisco",
+      "Nortel",
+      "ERP"
     ],
     "diller": [],
     "toplam_deneyim_yil": 37.8
@@ -113,7 +128,7 @@
       {
         "kurum": "EMBRY RIDDLE AERONAUTICAL UNIVERSITY",
         "bolum": "Professional Aeronautics",
-        "derece": "Bachelor of Science",
+        "derece": "Lisans",
         "baslangic": null,
         "bitis": 2000
       }
@@ -183,7 +198,12 @@
       }
     ],
     "teknik_beceriler": [
-      "3D modeling", "Budget analysis", "Job analysis", "Microsoft Office", "Program management", "Technical manuals"
+      "3D modeling",
+      "Budget analysis",
+      "Job analysis",
+      "Microsoft Office",
+      "Program management",
+      "Technical manuals"
     ],
     "diller": [],
     "toplam_deneyim_yil": 16.7
@@ -198,14 +218,14 @@
       {
         "kurum": "Williamsport Area Community College",
         "bolum": "Advertising Art",
-        "derece": "Associate of Arts",
+        "derece": "Ön Lisans",
         "baslangic": 1977,
         "bitis": 1979
       },
       {
         "kurum": "Jersey Shore Area Senior High School",
         "bolum": "Academic Courses",
-        "derece": "Graduate",
+        "derece": "Lisans",
         "baslangic": 1973,
         "bitis": 1977
       }
@@ -238,7 +258,12 @@
       }
     ],
     "teknik_beceriler": [
-      "AutoCAD", "Solid Works", "3d Solid Modeling", "Injection molded plastic", "Corel Draw", "Website Development"
+      "AutoCAD",
+      "Solid Works",
+      "3d Solid Modeling",
+      "Injection molded plastic",
+      "Corel Draw",
+      "Website Development"
     ],
     "diller": [],
     "toplam_deneyim_yil": 43.3
@@ -253,21 +278,21 @@
       {
         "kurum": "Arizona State University",
         "bolum": "Engineering Management",
-        "derece": "Bachelor of Science",
+        "derece": "Lisans",
         "baslangic": null,
         "bitis": 2020
       },
       {
         "kurum": "Saint Petersburg College",
         "bolum": "ESOL",
-        "derece": "Program Certificate",
+        "derece": "Ön Lisans",
         "baslangic": 2009,
         "bitis": 2010
       },
       {
         "kurum": "Chemical and Textile School",
         "bolum": "Chemical Technician",
-        "derece": "Associate of Science",
+        "derece": "Ön Lisans",
         "baslangic": 1989,
         "bitis": 1993
       }
@@ -300,7 +325,13 @@
       }
     ],
     "teknik_beceriler": [
-      "Calibration", "Chemical Engineering", "Troubleshooting", "Validation", "SOP", "Microsoft Excel", "Project Management"
+      "Calibration",
+      "Chemical Engineering",
+      "Troubleshooting",
+      "Validation",
+      "SOP",
+      "Microsoft Excel",
+      "Project Management"
     ],
     "diller": [],
     "toplam_deneyim_yil": 23.2
@@ -315,14 +346,14 @@
       {
         "kurum": "Western Michigan University",
         "bolum": "Mechanical Engineering",
-        "derece": "Master of Science",
+        "derece": "Yüksek Lisans",
         "baslangic": null,
         "bitis": 2019
       },
       {
         "kurum": "Dayananda Sagar College of Engineering",
         "bolum": "Automotive Engineering",
-        "derece": "Bachelor of Engineering",
+        "derece": "Lisans",
         "baslangic": null,
         "bitis": 2017
       }
@@ -354,7 +385,15 @@
       }
     ],
     "teknik_beceriler": [
-      "IBM Maximo 7.6", "AutoCAD", "SolidWorks", "ANSYS", "PFMEA", "Lean Manufacturing", "GD&T", "Catia", "Oracle"
+      "IBM Maximo 7.6",
+      "AutoCAD",
+      "SolidWorks",
+      "ANSYS",
+      "PFMEA",
+      "Lean Manufacturing",
+      "GD&T",
+      "Catia",
+      "Oracle"
     ],
     "diller": [],
     "toplam_deneyim_yil": 1.6
@@ -369,14 +408,14 @@
       {
         "kurum": "University of Wisconsin",
         "bolum": "Healthcare Information Management & Technology",
-        "derece": "Bachelor of Science",
+        "derece": "Lisans",
         "baslangic": 1999,
         "bitis": 2017
       },
       {
         "kurum": "Hannibal La-Grange University",
         "bolum": "Respiratory Therapy",
-        "derece": "Applied Associates Degree of Science",
+        "derece": "Ön Lisans",
         "baslangic": null,
         "bitis": 2000
       }
@@ -422,7 +461,14 @@
       }
     ],
     "teknik_beceriler": [
-      "RPSGT License", "AASM Standards", "EEG", "Polysomnogram", "Oxygen Titration", "Medical Terminology", "Windows OS", "EHR"
+      "RPSGT License",
+      "AASM Standards",
+      "EEG",
+      "Polysomnogram",
+      "Oxygen Titration",
+      "Medical Terminology",
+      "Windows OS",
+      "EHR"
     ],
     "diller": [],
     "toplam_deneyim_yil": 20.4
@@ -437,7 +483,7 @@
       {
         "kurum": "Winter Park High School",
         "bolum": "General",
-        "derece": "High School Diploma",
+        "derece": "Diğer",
         "baslangic": null,
         "bitis": 2004
       }
@@ -483,7 +529,14 @@
       }
     ],
     "teknik_beceriler": [
-      "Project Management", "Emergency Care", "TCCC", "CPR/BLS", "Mass Casualty Management", "Logistics", "Microsoft Office", "Network Administration"
+      "Project Management",
+      "Emergency Care",
+      "TCCC",
+      "CPR/BLS",
+      "Mass Casualty Management",
+      "Logistics",
+      "Microsoft Office",
+      "Network Administration"
     ],
     "diller": [
       {
@@ -507,7 +560,7 @@
       {
         "kurum": "LE CORDON BLEU COLLEGE OF CULINARY ARTS",
         "bolum": "Culinary Management",
-        "derece": "Bachelor of Arts",
+        "derece": "Lisans",
         "baslangic": 2008,
         "bitis": 2012
       }
@@ -552,7 +605,12 @@
       }
     ],
     "teknik_beceriler": [
-      "Food-Trak", "BirchStreet", "Excel", "Strategic planning", "Budget Management", "Vendor Negotiations"
+      "Food-Trak",
+      "BirchStreet",
+      "Excel",
+      "Strategic planning",
+      "Budget Management",
+      "Vendor Negotiations"
     ],
     "diller": [],
     "toplam_deneyim_yil": 22.3
@@ -567,7 +625,7 @@
       {
         "kurum": "Le Cordon Bleu College of Culinary Arts Atlanta",
         "bolum": "Culinary",
-        "derece": "Associate of Occupational Science Degree",
+        "derece": "Ön Lisans",
         "baslangic": null,
         "bitis": null
       }
@@ -623,7 +681,12 @@
       }
     ],
     "teknik_beceriler": [
-      "ServSafe certified", "Inventory management", "Menu design", "Budgeting", "Microsoft Office", "Public speaking"
+      "ServSafe certified",
+      "Inventory management",
+      "Menu design",
+      "Budgeting",
+      "Microsoft Office",
+      "Public speaking"
     ],
     "diller": [],
     "toplam_deneyim_yil": 15.6
