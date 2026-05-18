@@ -2,6 +2,23 @@ import streamlit as st
 import pandas as pd
 import time
 import random
+import requests
+import json
+import os
+import sys
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Proje kök dizinini path'e ekle
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.cv_reader import cv_metin_al
+from src.dify_api import cv_yapilandir
+
+DIFY_API_KEY = os.getenv("DIFY_API_KEY")
+ESLESTIRME_API_KEY = os.getenv("ESLESTIRME_API_KEY")
+IK_ASISTAN_API_KEY = os.getenv("IK_ASISTAN_API_KEY")
+DIFY_BASE_URL = "https://api.dify.ai/v1"
 
 # ─── Sayfa Yapılandırması ─────────────────────────────────────────────────────
 st.set_page_config(
@@ -384,46 +401,57 @@ with tab1:
 
     with right:
         if analyze_btn and uploaded_file is not None:
-            with st.spinner("Analiz ediliyor..."):
-                import time
-                time.sleep(2)
+            with st.spinner("CV okunuyor ve analiz ediliyor..."):
+                import tempfile
+                uzanti = os.path.splitext(uploaded_file.name)[1]
+                with tempfile.NamedTemporaryFile(delete=False, suffix=uzanti) as tmp:
+                    tmp.write(uploaded_file.read())
+                    tmp_path = tmp.name
+                
+                cv_metni = cv_metin_al(tmp_path)
+                os.unlink(tmp_path)
+                
+                try:
+                    cv_json = cv_yapilandir(cv_metni)
+                    st.session_state["cv_json"] = cv_json
+                    st.session_state["cv_metni"] = cv_metni
+                    analiz_basarili = True
+                except Exception as e:
+                    st.error(f"Analiz hatası: {e}")
+                    analiz_basarili = False
             
-            st.success("✅   Analiz tamamlandı!")
-
-            # TÜM SONUÇLARI TEK BİR HTML KARTTA TOPLA (İkinci Fotoğraftaki gibi)
-            results_html = '<div class="analysis-card">'
-            
-            # Üst Metrikler
-            results_html += """
-            <div class="metric-row">
-                <div class="metric-tile"><div class="metric-val">92</div><div class="metric-lbl">Profil Skoru</div></div>
-                <div class="metric-tile"><div class="metric-val">5</div><div class="metric-lbl">Deneyim (yıl)</div></div>
-                <div class="metric-tile"><div class="metric-val">8</div><div class="metric-lbl">Yetenek</div></div>
-            </div><br>"""
-
-            # Bilgiler
-            results_html += f"""
-            <div style="margin-bottom:12px;"><b class="text-bold">🏷️ Tahmin Edilen Kategori</b><br>Bilgi Teknolojileri (IT)</div>
-            <div style="margin-bottom:12px;"><b class="text-bold">🛠️ Belirlenen Yetenekler</b><br>"""
-            
-            skills = ["Python", "SQL", "Streamlit", "Machine Learning", "FastAPI", "Docker"]
-            results_html += "".join(f'<span class="skill-tag">{s}</span>' for s in skills)
-            
-            results_html += """</div>
-            <div style="margin-bottom:12px;"><b class="text-bold">📝 Özet</b><br>
-            <span style="color:#4A5568; line-height:1.6;">Aday, yazılım geliştirme alanında uzmanlaşmış, güçlü teknik yetkinliklere sahip bir profesyoneldir.</span></div>
-            <br><b class="text-bold">📊 Bölüm Değerlendirmesi</b>"""
-
-            # İlerleme Çubukları
-            for lbl, pct in [("Teknik Beceriler", 92), ("Deneyim Kalitesi", 85)]:
+            if analiz_basarili:
+                st.success("✅   Analiz tamamlandı!")
+                cv = st.session_state.get("cv_json", {})
+                deneyim = cv.get("toplam_deneyim_yil", 0) or 0
+                beceriler = cv.get("teknik_beceriler", [])
+                egitim = cv.get("egitim", [])
+                
+                results_html = '<div class="analysis-card">'
                 results_html += f"""
-                <div class="match-bar-wrap">
-                    <div class="match-bar-label"><span>{lbl}</span><span class="text-bold">{pct}%</span></div>
-                    <div class="match-bar-bg"><div class="match-bar-fill" style="width:{pct}%"></div></div>
-                </div>"""
-            
-            results_html += '</div>'
-            st.markdown(results_html, unsafe_allow_html=True)
+                <div class="metric-row">
+                    <div class="metric-tile"><div class="metric-val">{int(deneyim)}</div><div class="metric-lbl">Deneyim (yıl)</div></div>
+                    <div class="metric-tile"><div class="metric-val">{len(beceriler)}</div><div class="metric-lbl">Yetenek</div></div>
+                    <div class="metric-tile"><div class="metric-val">{len(egitim)}</div><div class="metric-lbl">Eğitim</div></div>
+                </div><br>"""
+                
+                if egitim:
+                    ilk = egitim[0]
+                    results_html += f'<div style="margin-bottom:12px;"><b>🎓 Eğitim</b><br>{ilk.get("kurum","")}, {ilk.get("bolum","")}, {ilk.get("derece","")}</div>'
+                
+                results_html += '<div style="margin-bottom:12px;"><b>🛠️ Teknik Beceriler</b><br>'
+                results_html += "".join(f'<span class="skill-tag">{s}</span>' for s in beceriler[:12])
+                results_html += '</div>'
+                
+                deneyimler = cv.get("deneyim", [])
+                if deneyimler:
+                    results_html += '<div style="margin-bottom:12px;"><b>💼 Deneyimler</b><br>'
+                    for d in deneyimler:
+                        results_html += f'<div style="margin-bottom:6px; color:#c5d8ea;">• {d.get("pozisyon","")}, <span style="color:#5a6a7e;">{d.get("sirket","")} ({d.get("baslangic","")}–{d.get("bitis","günümüz")})</span></div>'
+                    results_html += '</div>'
+                
+                results_html += '</div>'
+                st.markdown(results_html, unsafe_allow_html=True)
 
         elif not analyze_btn:
             # Boş Durum Kartı
@@ -464,73 +492,80 @@ with tab2:
             st.warning("⚠️   Lütfen bir iş ilanı metni girin.")
         else:
             with st.spinner("Aday havuzunda tarama yapılıyor…"):
-                import time
-                time.sleep(1.8)
+                try:
+                    yanit = requests.post(
+                        f"{DIFY_BASE_URL}/workflows/run",
+                        headers={"Authorization": f"Bearer {ESLESTIRME_API_KEY}", "Content-Type": "application/json"},
+                        json={"inputs": {"ilan_metni": job_description}, "response_mode": "blocking", "user": "streamlit"},
+                        timeout=120
+                    )
+                    veri = yanit.json()
+                    print("Dify yanıt:", veri)
+                    eslesme_ham = veri["data"]["outputs"]["eslesme_sonucu"]
+                    eslesme_ham = eslesme_ham.replace("```json", "").replace("```", "").strip()
+                    eslesme_sonuc = json.loads(eslesme_ham)
+                    eslesme_basarili = True
+                except KeyError as e:
+                    st.error(f"API yanıt hatası: {e} — Yanıt: {veri}")
+                    eslesme_basarili = False
 
-            st.success("✅   Eşleştirme tamamlandı! 3 uyumlu aday bulundu.")
-
-            col_l, col_r = st.columns(2, gap="large")
-
-# --- SOL KOLON: TF-IDF ---
-            with col_l:
-                st.markdown('<div class="section-label">TF-IDF · VEKTÖREL ANALİZ</div>', unsafe_allow_html=True)
+            if eslesme_basarili:
+                adaylar = eslesme_sonuc.get("adaylar", [])
+                st.success(f"✅   Eşleştirme tamamlandı! {len(adaylar)} aday değerlendirildi.")
                 
-                tfidf_html = '<div class="card">'
-                tfidf_data = [
-                    {"Aday ID": "#1024", "İsim": "Ahmet Y.", "Skor": 0.85, "Uyum": "Çok Yüksek"},
-                    {"Aday ID": "#2048", "İsim": "Selin K.", "Skor": 0.72, "Uyum": "Yüksek"},
-                    {"Aday ID": "#3072", "İsim": "Mert D.", "Skor": 0.68, "Uyum": "Orta"},
-                ]
-                for row in tfidf_data:
-                    pct = int(row["Skor"] * 100)
-                    tfidf_html += f"""
-                    <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #E2E8F0;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                            <span style="color:#1A202C !important; font-weight:700; font-size:0.95rem;">{row['İsim']}</span>
-                            <span style="color:#3182CE; font-family:'Syne',sans-serif; font-weight:700;">{pct}%</span>
-                        </div>
-                        <div style="color:#718096; font-size:0.78rem; margin-bottom:6px;">{row['Aday ID']} · {row['Uyum']}</div>
-                        <div class="match-bar-bg">
-                            <div class="match-bar-fill" style="width:{pct}%"></div>
-                        </div>
-                    </div>"""
-                tfidf_html += '</div>'
-                st.markdown(tfidf_html, unsafe_allow_html=True)
+                col_l, col_r = st.columns(2, gap="large")
 
-            # --- SAĞ KOLON: LLM ---
-            with col_r:
-                st.markdown('<div class="section-label">LLM · ANLAMSAL ANALİZ</div>', unsafe_allow_html=True)
+                with col_l:
+                    st.markdown('<div class="section-label">TF-IDF · VEKTÖREL ANALİZ</div>', unsafe_allow_html=True)
+                    from sklearn.feature_extraction.text import TfidfVectorizer
+                    from sklearn.metrics.pairwise import cosine_similarity
+                    import pandas as pd
+                    df_cv = pd.read_csv("data/processed/Resume_temiz.csv")
+                    cv_metinleri = df_cv["temiz_metin"].fillna("").tolist()
+                    vektorizer = TfidfVectorizer(max_features=3000, sublinear_tf=True)
+                    matris = vektorizer.fit_transform([job_description] + cv_metinleri)
+                    benzerlikler = cosine_similarity(matris[0:1], matris[1:])[0]
+                    top5_idx = benzerlikler.argsort()[-5:][::-1]
+                    
+                    tfidf_html = '<div class="card">'
+                    for idx in top5_idx:
+                        pct = int(benzerlikler[idx] * 100)
+                        cv_id = df_cv.iloc[idx]["ID"]
+                        kategori = df_cv.iloc[idx]["Category"]
+                        tfidf_html += f"""
+                        <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #1f2330;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                <span style="color:#c5d8ea; font-weight:700;">CV #{cv_id}</span>
+                                <span style="color:#00b4ff; font-weight:700;">{pct}%</span>
+                            </div>
+                            <div style="color:#5a6a7e; font-size:0.78rem; margin-bottom:6px;">{kategori}</div>
+                            <div class="match-bar-bg"><div class="match-bar-fill" style="width:{pct}%"></div></div>
+                        </div>"""
+                    tfidf_html += '</div>'
+                    st.markdown(tfidf_html, unsafe_allow_html=True)
+
+                with col_r:
+                    st.markdown('<div class="section-label">LLM · ANLAMSAL ANALİZ</div>', unsafe_allow_html=True)
+                    llm_html = '<div class="card">'
+                    for i, aday in enumerate(adaylar[:5]):
+                        skor = aday.get("skor", 0)
+                        gerekce = aday.get("gerekce", "")
+                        guclu = aday.get("guclu_yonler", [])
+                        aday_id = aday.get("aday_id", f"#{i+1}")
+                        tag = "✅ Önerilir" if skor >= 70 else "⚡ Potansiyel" if skor >= 50 else "❌ Uygun Değil"
+                        llm_html += f"""
+                        <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #1f2330;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                <span style="color:#c5d8ea; font-weight:700;">Aday {i+1} | {aday_id}</span>
+                                <span style="background:rgba(56,161,105,0.1); border:1px solid rgba(56,161,105,0.25);
+                                            color:#64dcb4; font-size:0.72rem; font-weight:600; padding:2px 8px;
+                                            border-radius:20px;">{tag} · {skor}/100</span>
+                            </div>
+                            <div style="color:#5a6a7e; font-size:0.83rem;">{gerekce}</div>
+                        </div>"""
+                    llm_html += '</div>'
                 
-                llm_html = '<div class="card">'
-                llm_data = [
-                    {"id": "#1024", "name": "Ahmet Y.", "reason": "Teknik beceriler eksiksiz; Python ve SQL deneyimi birebir örtüşüyor.", "tag": "✅ Önerilir"},
-                    {"id": "#4096", "name": "Zeynep A.", "reason": "Sektör bilgisi ve iletişim becerileri ilanla yüksek uyum sağlıyor.", "tag": "✅ Önerilir"},
-                    {"id": "#1025", "name": "Can T.", "reason": "Deneyim süresi uygun; liderlik vurgusu ek değer katıyor.", "tag": "⚡ Potansiyel"},
-                ]
-                for row in llm_data:
-                    llm_html += f"""
-                    <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #E2E8F0;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                            <span style="color:#1A202C !important; font-weight:700; font-size:0.95rem;">{row['name']}</span>
-                            <span style="background:rgba(56,161,105,0.1); border:1px solid rgba(56,161,105,0.25);
-                                          color:#38A169; font-size:0.72rem; font-weight:600; padding:2px 8px;
-                                          border-radius:20px;">{row['tag']}</span>
-                        </div>
-                        <div style="color:#718096; font-size:0.78rem; margin-bottom:4px;">{row['id']}</div>
-                        <div style="color:#4A5568; font-size:0.83rem;">{row['reason']}</div>
-                    </div>"""
-                llm_html += '</div>'
-                st.markdown(llm_html, unsafe_allow_html=True)
-
-            # Kombine Sonuç Özeti
-            st.markdown('<div class="section-label" style="margin-top:1rem;">KOMBİNE SONUÇ</div>', unsafe_allow_html=True)
-            st.markdown(f"""
-            <div class="card card-green">
-                Her iki analiz yöntemi birleştirildiğinde <b>Aday #1024 (Ahmet Y.)</b> en güçlü eşleşme olarak öne çıkmaktadır.<br>
-                TF-IDF vektörel benzerliği <b>%85</b>, LLM anlamsal uyumu ise <b>Önerilir</b> düzeyindedir.
-            </div>
-            """, unsafe_allow_html=True)
-
+                    st.markdown(llm_html, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SEKME 3 — İK Asistanı
@@ -548,82 +583,71 @@ with tab3:
     </div>
     """, unsafe_allow_html=True)
 
-    # Session state
+    # Session state başlat
     if "messages" not in st.session_state:
         st.session_state.messages = [
             {
                 "role": "assistant",
-                "content": "Merhaba! 👋 Ben AI Destekli - CV Analiz Sistemi İK Asistanınızım. Aday profilleri, mülakat soruları veya işe alım süreçleri hakkında her konuda yardımcı olmaya hazırım.",
+                "content": "Merhaba! 👋 Ben AI Destekli CV Analiz Sistemi İK Asistanınızım. Aday profilleri, mülakat soruları veya işe alım süreçleri hakkında her konuda yardımcı olmaya hazırım.",
             }
         ]
 
-    # Sohbet geçmişi konteyneri
-    chat_container = st.container()
-    with chat_container:
-        for msg in st.session_state.messages:
-            with st.chat_message(msg["role"]):
-                st.markdown(msg["content"])
+    if "conversation_id" not in st.session_state:
+        st.session_state.conversation_id = ""
+
+    # Dify chatbot API fonksiyonu
+    def generate_response(user_msg: str) -> str:
+        try:
+            yanit = requests.post(
+                f"{DIFY_BASE_URL}/chat-messages",
+                headers={
+                    "Authorization": f"Bearer {IK_ASISTAN_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "inputs": {},
+                    "query": user_msg,
+                    "response_mode": "blocking",
+                    "conversation_id": st.session_state.conversation_id,
+                    "user": "streamlit-user"
+                },
+                timeout=60
+            )
+            veri = yanit.json()
+
+            if "conversation_id" in veri:
+                st.session_state.conversation_id = veri["conversation_id"]
+
+            return veri.get("answer", "Üzgünüm, bir hata oluştu.")
+
+        except Exception as e:
+            return f"Bağlantı hatası: {e}"
 
     # Hızlı sorular
     st.markdown('<div style="margin: 0.5rem 0 0.8rem; color:#3a4a5e; font-size:0.78rem; font-weight:600; letter-spacing:1px;">HIZLI SORULAR</div>', unsafe_allow_html=True)
 
     quick_cols = st.columns(3)
     quick_questions = [
-        "📊 En iyi 5 adayı listele",
-        "💬 Python geliştiricisi için mülakat soruları öner",
-        "📈 Bu ay kaç başvuru geldi?",
+        "📊 Python developer adaylarını listele",
+        "💬 HR pozisyonu için mülakat soruları öner",
+        "🔍 Veri bilimi deneyimli aday var mı?",
     ]
     for i, (col, q) in enumerate(zip(quick_cols, quick_questions)):
         with col:
             if st.button(q, key=f"quick_{i}", use_container_width=True):
                 st.session_state.messages.append({"role": "user", "content": q})
-                st.rerun()
+                with st.chat_message("user"):
+                    st.markdown(q)
+                with st.chat_message("assistant"):
+                    with st.spinner("Düşünüyorum…"):
+                        resp = generate_response(q)
+                    st.markdown(resp)
+                st.session_state.messages.append({"role": "assistant", "content": resp})
 
-    # Mock yanıt üretici
-    def generate_response(user_msg: str) -> str:
-        msg = user_msg.lower()
-
-        if "aday" in msg and ("liste" in msg or "getir" in msg or "göster" in msg):
-            return (
-                "**En Yüksek Skorlu 5 Aday:**\n\n"
-                "| # | İsim | Puan | Kategori |\n"
-                "|---|------|------|----------|\n"
-                "| 1 | Ahmet Y. | 92 | Backend Dev |\n"
-                "| 2 | Zeynep A. | 88 | Data Engineer |\n"
-                "| 3 | Mert D. | 85 | ML Engineer |\n"
-                "| 4 | Selin K. | 81 | Full-Stack Dev |\n"
-                "| 5 | Can T. | 78 | DevOps |\n\n"
-                "Detaylı profil için aday ID'si belirtebilirsiniz."
-            )
-        elif "mülakat" in msg or "soru" in msg:
-            return (
-                "**Python Geliştiricisi için Önerilen Mülakat Soruları:**\n\n"
-                "1. GIL (Global Interpreter Lock) nedir ve çoklu iş parçacığını nasıl etkiler?\n"
-                "2. `list` ile `tuple` arasındaki farkları açıklayın ve ne zaman hangisini kullanırsınız?\n"
-                "3. Decorator pattern'i bir örnekle anlatın.\n"
-                "4. `async/await` yapısını ve bir kullanım senaryosunu açıklayın.\n"
-                "5. Büyük veri setlerinde bellek optimizasyonu için hangi teknikleri kullanırsınız?\n\n"
-                "Ek sorular veya belirli bir seviye (junior/senior) için özelleştirme ister misiniz?"
-            )
-        elif "başvuru" in msg or "bu ay" in msg:
-            return (
-                "**Bu Ay Başvuru İstatistikleri:**\n\n"
-                f"- 📥 Toplam Başvuru: **{random.randint(140, 180)}**\n"
-                f"- ✅ Analiz Tamamlanan: **{random.randint(110, 130)}**\n"
-                f"- 🎯 Ön Elemeyi Geçen: **{random.randint(30, 50)}**\n"
-                f"- 🗓️ Mülakata Davet Edilen: **{random.randint(10, 20)}**\n\n"
-                "Geçen aya kıyasla başvuru sayısında **+%12** artış gözlemlenmiştir."
-            )
-        else:
-            return (
-                f"**'{user_msg}'** sorgunuzla ilgili analizlerime göre:\n\n"
-                f"Aday veritabanımızda bu konuya uygun **{random.randint(8, 25)} profil** bulunmaktadır. "
-                "Sonuçları daraltmak için:\n\n"
-                "- Deneyim seviyesi (Junior / Mid / Senior)\n"
-                "- Lokasyon veya uzaktan çalışma tercihi\n"
-                "- Belirli bir teknoloji yığını\n\n"
-                "bilgilerini paylaşabilirsiniz. Detaylı rapor ister misiniz?"
-            )
+    # Sohbet geçmişi
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
     # Kullanıcı girdisi
     if prompt := st.chat_input("Mesajınızı yazın… (örn: 'Python bilen adayları listele')"):
@@ -633,8 +657,7 @@ with tab3:
 
         with st.chat_message("assistant"):
             with st.spinner("Düşünüyorum…"):
-                time.sleep(0.8)
-            response = generate_response(prompt)
+                response = generate_response(prompt)
             st.markdown(response)
 
         st.session_state.messages.append({"role": "assistant", "content": response})
@@ -642,10 +665,9 @@ with tab3:
     # Geçmişi temizle
     if len(st.session_state.messages) > 1:
         if st.button("🗑️  Sohbeti Temizle", key="clear_chat"):
-            st.session_state.messages = [st.session_state.messages[0]]
+            st.session_state.messages = [{"role": "assistant", "content": "Merhaba! 👋 Ben AI Destekli CV Analiz Sistemi İK Asistanınızım. Nasıl yardımcı olabilirim?"}]
+            st.session_state.conversation_id = ""
             st.rerun()
-
-
 # ══════════════════════════════════════════════════════════════════════════════
 # SIDEBAR
 # ══════════════════════════════════════════════════════════════════════════════
