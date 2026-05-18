@@ -32,3 +32,9 @@ Pearson Korelasyon: r = 0.079
 NDCG@5:             0.894
 H2 (≥ 0.70): HEDEFIN ALTINDA
 H3 (≥ 0.60): BASARILI
+
+
+H2 ve H3 Metrikleri — LLM Model
+========================================
+Pearson r:  0.752  → BASARILI
+NDCG@5:     0.908  → BASARILI
