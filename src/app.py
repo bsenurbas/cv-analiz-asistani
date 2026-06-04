@@ -116,6 +116,7 @@ with tab1:
                 deneyim = cv.get("toplam_deneyim_yil", 0) or 0
                 beceriler = cv.get("teknik_beceriler", [])
                 egitim = cv.get("egitim", [])
+                oneriler = cv.get("oneriler", [])
                 
                 results_html = '<div class="analysis-card">'
                 results_html += f"""
@@ -142,6 +143,33 @@ with tab1:
                 
                 results_html += '</div>'
                 st.markdown(results_html, unsafe_allow_html=True)
+                if oneriler:
+                    st.markdown("""
+                    <div class="card card-green">
+                        <div class="section-label">GUCLENDIRME ONERILERI</div>
+                        <div class="section-title">CV'yi Guclendirmek Icin Oneriler</div>
+                    """, unsafe_allow_html=True)
+
+                    for oneri in oneriler:
+                        kategori = oneri.get("kategori", "Oneri")
+                        baslik = oneri.get("baslik", "")
+                        aciklama = oneri.get("aciklama", "")
+
+                        st.markdown(f"""
+                        <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #1f2330;">
+                            <div style="color:#3a7bd5; font-size:0.72rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">
+                                {kategori}
+                            </div>
+                            <div style="color:#dce8f0; font-size:0.98rem; font-weight:700; margin-bottom:4px;">
+                                {baslik}
+                            </div>
+                            <div style="color:#7a8ba0; font-size:0.9rem;">
+                                {aciklama}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                    st.markdown("</div>", unsafe_allow_html=True)
 
         elif not analyze_btn:
             # Boş Durum Kartı
