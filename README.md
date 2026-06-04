@@ -20,11 +20,6 @@ Asagidaki gorseller `visuals/` klasorunde uretilen analiz ve model raporlarindan
 
 ![KPI ozeti](visuals/00_kpi_summary.png)
 
-| İsim | Rol | Uzmanlık Alanı |
-| :--- | :--- | :--- |
-| **Buse Nur Baş - 220229015** | Backend & AI Ops | LLM/MCP Entegrasyonu, API Geliştirme |
-| **Sude Çokyaşar - 220229033** | Data & Frontend | Veri İşleme, RAG Mimarisi, UI Tasarımı |
-
 ![Model karsilastirma](visuals/model_karsilastirma.png)
 
 ![LLM metrikleri](visuals/llm_metrik.png)
