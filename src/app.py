@@ -4,16 +4,24 @@ import time
 import random
 import requests
 import json
+import logging
 import os
 import sys
 from dotenv import load_dotenv
 
 load_dotenv()
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
+
 # Proje kök dizinini path'e ekle
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.cv_reader import cv_metin_al
 from src.dify_api import cv_yapilandir
+from src.karsilastirma_api import cv_karsilastir
 
 DIFY_API_KEY = os.getenv("DIFY_API_KEY")
 ESLESTIRME_API_KEY = os.getenv("ESLESTIRME_API_KEY")
@@ -417,7 +425,8 @@ with tab1:
                     st.session_state["cv_metni"] = cv_metni
                     analiz_basarili = True
                 except Exception as e:
-                    st.error(f"Analiz hatası: {e}")
+                    logger.exception("CV analizi basarisiz oldu.")
+                    st.error("CV analiz edilemedi. Lutfen dosya formatini ve Dify API ayarlarini kontrol edip tekrar deneyin.")
                     analiz_basarili = False
             
             if analiz_basarili:
@@ -470,6 +479,124 @@ with tab1:
 
             """, unsafe_allow_html=True)
 
+        st.markdown("---")
+    st.markdown('<div class="section-label">ADIM 1B</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Iki CV Karsilastir</div>', unsafe_allow_html=True)
+
+    kars_col1, kars_col2 = st.columns([1, 1], gap="large")
+
+    with kars_col1:
+        cv1_file = st.file_uploader(
+            "Birinci CV",
+            type=["pdf", "docx"],
+            key="karsilastirma_cv1",
+        )
+
+        cv2_file = st.file_uploader(
+            "Ikinci CV",
+            type=["pdf", "docx"],
+            key="karsilastirma_cv2",
+        )
+
+    with kars_col2:
+        karsilastirma_ilan = st.text_area(
+            "Karsilastirma icin is ilani",
+            height=150,
+            placeholder="Orn: Stratejik IK deneyimi olan, performans yonetimi ve ise alim sureclerini yonetecek IK yoneticisi araniyor...",
+            key="karsilastirma_ilan",
+        )
+
+        karsilastir_btn = st.button(
+            "CV Karsilastir",
+            type="primary",
+            use_container_width=True,
+            disabled=not (cv1_file and cv2_file and karsilastirma_ilan.strip()),
+        )
+
+    if karsilastir_btn:
+        import tempfile
+
+        tmp_paths = []
+
+        try:
+            with st.spinner("Iki CV karsilastiriliyor..."):
+                for dosya in [cv1_file, cv2_file]:
+                    uzanti = os.path.splitext(dosya.name)[1]
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=uzanti) as tmp:
+                        tmp.write(dosya.read())
+                        tmp_paths.append(tmp.name)
+
+                cv1_metni = cv_metin_al(tmp_paths[0])
+                cv2_metni = cv_metin_al(tmp_paths[1])
+
+                sonuc = cv_karsilastir(
+                    cv1_metni=cv1_metni,
+                    cv2_metni=cv2_metni,
+                    ilan_metni=karsilastirma_ilan,
+                )
+
+            st.success("Karsilastirma tamamlandi!")
+
+            daha_uygun = sonuc.get("daha_uygun_cv", "-")
+            ozet = sonuc.get("uygunluk_ozeti", "")
+            cv1 = sonuc.get("cv1", {})
+            cv2 = sonuc.get("cv2", {})
+
+            st.markdown(f"""
+            <div class="card card-green">
+                <div class="section-label">SONUC</div>
+                <div style="color:#dce8f0; font-size:1.1rem; font-weight:700; margin-bottom:8px;">
+                    Daha uygun aday: {daha_uygun}
+                </div>
+                <div style="color:#7a8ba0; font-size:0.9rem;">{ozet}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            skor_col1, skor_col2 = st.columns(2, gap="large")
+
+            with skor_col1:
+                st.markdown(f"""
+                <div class="card">
+                    <div class="section-label">CV 1</div>
+                    <div class="metric-val">{cv1.get("skor", "-")}</div>
+                    <div style="color:#7a8ba0; margin:8px 0;">{cv1.get("ilanla_uyum", "")}</div>
+                    <b>Guclu yonler</b>
+                    <ul>{"".join(f"<li>{madde}</li>" for madde in cv1.get("guclu_yonler", []))}</ul>
+                    <b>Zayif yonler</b>
+                    <ul>{"".join(f"<li>{madde}</li>" for madde in cv1.get("zayif_yonler", []))}</ul>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with skor_col2:
+                st.markdown(f"""
+                <div class="card">
+                    <div class="section-label">CV 2</div>
+                    <div class="metric-val">{cv2.get("skor", "-")}</div>
+                    <div style="color:#7a8ba0; margin:8px 0;">{cv2.get("ilanla_uyum", "")}</div>
+                    <b>Guclu yonler</b>
+                    <ul>{"".join(f"<li>{madde}</li>" for madde in cv2.get("guclu_yonler", []))}</ul>
+                    <b>Zayif yonler</b>
+                    <ul>{"".join(f"<li>{madde}</li>" for madde in cv2.get("zayif_yonler", []))}</ul>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown(f"""
+            <div class="card card-accent">
+                <div class="section-label">KARAR GEREKCESI</div>
+                <div style="color:#c5d8ea;">{sonuc.get("karar_gerekcesi", "")}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        except Exception:
+            logger.exception("CV karsilastirma islemi basarisiz oldu.")
+            st.error("CV karsilastirma tamamlanamadi. Lutfen dosyalari, is ilani metnini ve Dify API ayarlarini kontrol edin.")
+
+        finally:
+            for tmp_path in tmp_paths:
+                try:
+                    os.unlink(tmp_path)
+                except OSError:
+                    logger.warning("Gecici dosya silinemedi: %s", tmp_path)
 # ══════════════════════════════════════════════════════════════════════════════
 # SEKME 2 — İş İlanı Eşleştir
 # ══════════════════════════════════════════════════════════════════════════════
@@ -492,6 +619,7 @@ with tab2:
             st.warning("⚠️   Lütfen bir iş ilanı metni girin.")
         else:
             with st.spinner("Aday havuzunda tarama yapılıyor…"):
+                veri = {}
                 try:
                     yanit = requests.post(
                         f"{DIFY_BASE_URL}/workflows/run",
@@ -499,14 +627,24 @@ with tab2:
                         json={"inputs": {"ilan_metni": job_description}, "response_mode": "blocking", "user": "streamlit"},
                         timeout=120
                     )
+                    yanit.raise_for_status()
                     veri = yanit.json()
-                    print("Dify yanıt:", veri)
+                    logger.info("Dify eslestirme yaniti alindi.")
                     eslesme_ham = veri["data"]["outputs"]["eslesme_sonucu"]
                     eslesme_ham = eslesme_ham.replace("```json", "").replace("```", "").strip()
                     eslesme_sonuc = json.loads(eslesme_ham)
                     eslesme_basarili = True
-                except KeyError as e:
-                    st.error(f"API yanıt hatası: {e} — Yanıt: {veri}")
+                except requests.RequestException:
+                    logger.exception("Dify eslestirme API baglantisi basarisiz oldu.")
+                    st.error("Baglanti kurulamadi. Lutfen internet baglantisini ve Dify eslestirme API anahtarini kontrol edin.")
+                    eslesme_basarili = False
+                except (KeyError, json.JSONDecodeError):
+                    logger.exception("Dify eslestirme yaniti beklenen formatta degil: %s", veri)
+                    st.error("Eslestirme sonucu beklenen formatta gelmedi. Lutfen Dify workflow cikti alanlarini kontrol edin.")
+                    eslesme_basarili = False
+                except Exception:
+                    logger.exception("Eslestirme sirasinda beklenmeyen hata olustu.")
+                    st.error("Eslestirme tamamlanamadi. Lutfen daha sonra tekrar deneyin.")
                     eslesme_basarili = False
 
             if eslesme_basarili:
@@ -613,15 +751,20 @@ with tab3:
                 },
                 timeout=60
             )
+            yanit.raise_for_status()
             veri = yanit.json()
 
             if "conversation_id" in veri:
                 st.session_state.conversation_id = veri["conversation_id"]
 
-            return veri.get("answer", "Üzgünüm, bir hata oluştu.")
+            return veri.get("answer", "Uzgunum, su anda yanit uretilemedi. Lutfen sorunuzu tekrar deneyin.")
 
-        except Exception as e:
-            return f"Bağlantı hatası: {e}"
+        except requests.RequestException:
+            logger.exception("IK asistani API baglantisi basarisiz oldu.")
+            return "Baglanti kurulamadi. Lutfen Dify chatbot API anahtarini ve internet baglantisini kontrol edin."
+        except Exception:
+            logger.exception("IK asistani yanit uretirken beklenmeyen hata olustu.")
+            return "Uzgunum, su anda yanit uretilemedi. Lutfen daha sonra tekrar deneyin."
 
     # Hızlı sorular
     st.markdown('<div style="margin: 0.5rem 0 0.8rem; color:#3a4a5e; font-size:0.78rem; font-weight:600; letter-spacing:1px;">HIZLI SORULAR</div>', unsafe_allow_html=True)
@@ -674,12 +817,15 @@ with tab3:
 with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding: 1rem 0 0.5rem;">
-        <div style="font-size: 3rem;">🎯</div>
+        <div style="width:64px; height:64px; border-radius:16px; margin:0 auto 0.75rem;
+             background:linear-gradient(135deg,#0d5fa0,#64dcb4); display:flex;
+             align-items:center; justify-content:center; color:#ffffff;
+             font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:800;">CV</div>
         <div style="font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800;
              background:linear-gradient(90deg,#e0f4ff,#00b4ff);
              -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-             background-clip:text;">AI Destekli - CV Analiz Sistemi</div>
-        <div style="color:#3a4a5e; font-size:0.88rem; margin-top:2px;"> Yapay Zeka Destekli</div>
+             background-clip:text;">CV Analiz Asistanı</div>
+        <div style="color:#7a8ba0; font-size:0.82rem; margin-top:4px;">CV Analiz Asistanı — Kocaeli Üniversitesi 2026</div>
     </div>
     """, unsafe_allow_html=True)
 
