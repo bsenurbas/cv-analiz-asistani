@@ -1,0 +1,5 @@
+Dify CV Yapilandirma workflow kuruldu. Model: claude-sonnet-4-20250514. Input: cv_metni, Output: cv_json 
+
+Dify CV Eslestirme workflow kuruldu. Model: claude-sonnet-4-20250514. Input: ilan_metni, Output: eslesme_sonucu. Knowledge Base: CV_Dataset_V1 bagli.
+
+Dify IK Asistani chatbot kuruldu. Tip: Sohbet Akisi. Model: claude-sonnet-4-20250514. Knowledge Base: CV_Dataset_V1 bagli. Input: query, Output: text.
