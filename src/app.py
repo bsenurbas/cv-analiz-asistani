@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.cv_reader import cv_metin_al
 from src.dify_api import cv_yapilandir
-from src.karsilastirma_api import cv_karsilastir
+from utils import skor_kaydet
+from utils import skor_kaydet, sidebar_metriklerini_hesapla
 
 DIFY_API_KEY = os.getenv("DIFY_API_KEY")
 ESLESTIRME_API_KEY = os.getenv("ESLESTIRME_API_KEY")
@@ -36,338 +37,18 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ─── Global CSS ───────────────────────────────────────────────────────────────
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Syne:wght@700;800&display=swap');
+# ─── HARİCİ CSS DOSYASINI OKUMA VE YÜKLEME ────────────────────────────────────
+# Tasarımın temiz kalması için CSS kodlarını 'style.css' dosyasına taşıdık.
+css_dosya_yolu = "src/style.css"  # Proje yapına göre gerekirse "src/style.css" yapabilirsin
 
-/* ── Reset & Base ────────────────────────────── */
-html, body, [class*="css"] {
-    font-family: 'DM Sans', sans-serif;
-}
-.main .block-container {
-    padding: 2rem 2.5rem 3rem;
-    max-width: 1200px;
-}
-.main { background: #0d0f14; }
-section[data-testid="stSidebar"] { background: #111318 !important; border-right: 1px solid #1f2330; }
+if os.path.exists(css_dosya_yolu):
+    with open(css_dosya_yolu, "r", encoding="utf-8") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+else:
+    # Eğer style.css henüz oluşturulmadıysa çökmesini engellemek için yedek güvenli alan
+    st.warning("⚠️ 'style.css' dosyası bulunamadı. Lütfen CSS kodlarını bu isimde bir dosyaya taşıyın.")
 
-/* ── Scrollbar ───────────────────────────────── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0d0f14; }
-::-webkit-scrollbar-thumb { background: #2a2f42; border-radius: 3px; }
-
-/* ── Hero Banner ─────────────────────────────── */
-.hero-wrap {
-    background: linear-gradient(135deg, #0d1b2a 0%, #112240 50%, #0d0f14 100%);
-    border: 1px solid #1e3a5f;
-    border-radius: 20px;
-    padding: 2.5rem 3rem;
-    margin-bottom: 2rem;
-    position: relative;
-    overflow: hidden;
-}
-.hero-wrap::before {
-    content: '';
-    position: absolute;
-    top: -60px; right: -60px;
-    width: 300px; height: 300px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,180,255,0.12) 0%, transparent 70%);
-    pointer-events: none;
-}
-.hero-wrap::after {
-    content: '';
-    position: absolute;
-    bottom: -40px; left: 40%;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(100,220,180,0.07) 0%, transparent 70%);
-    pointer-events: none;
-}
-.hero-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 2.6rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, #e0f4ff 0%, #64dcb4 50%, #00b4ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0 0 0.4rem;
-    letter-spacing: -0.5px;
-}
-.hero-sub {
-    color: #7a8ba0;
-    font-size: 1.05rem;
-    font-weight: 400;
-    margin: 0;
-}
-.hero-badge {
-    display: inline-block;
-    background: rgba(0,180,255,0.12);
-    border: 1px solid rgba(0,180,255,0.3);
-    color: #00b4ff;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 4px 12px;
-    border-radius: 50px;
-    margin-bottom: 1rem;
-}
-
-/* ── Tab Bar ─────────────────────────────────── */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 8px;
-    background: #111318;
-    padding: 6px;
-    border-radius: 14px;
-    border: 1px solid #1f2330;
-    margin-bottom: 1.5rem;
-}
-.stTabs [data-baseweb="tab"] {
-    height: 44px;
-    border-radius: 10px;
-    padding: 0 22px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    font-size: 0.9rem;
-    color: #5a6a7e;
-    background: transparent;
-    border: none;
-    transition: all 0.2s;
-}
-.stTabs [data-baseweb="tab"]:hover { color: #c5d8ea; background: #181d2a; }
-.stTabs [aria-selected="true"] {
-    background: linear-gradient(135deg, #0d3a5f, #1a5276) !important;
-    color: #e0f4ff !important;
-    font-weight: 600;
-    box-shadow: 0 2px 12px rgba(0,100,180,0.35);
-}
-.stTabs [data-baseweb="tab-highlight"] { display: none; }
-.stTabs [data-baseweb="tab-border"] { display: none; }
-
-/* ── Cards ───────────────────────────────────── */
-.card {
-    background: #111318;
-    border: 1px solid #1f2330;
-    border-radius: 16px;
-    padding: 1.6rem 1.8rem;
-    margin-bottom: 1.2rem;
-            
-}
-.card-accent {
-    border-left: 3px solid #00b4ff;
-}
-.card-green {
-    border-left: 3px solid #64dcb4;
-}
-.section-label {
-    font-family: 'Syne', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #3a7bd5;
-    margin-bottom: 0.6rem;
-}
-.section-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #dce8f0;
-    margin-bottom: 1.2rem;
-}
-
-/* ── Metric Tiles ────────────────────────────── */
-.metric-row { display: flex; gap: 12px; margin-bottom: 1.2rem; flex-wrap: wrap; }
-.metric-tile {
-    flex: 1;
-    min-width: 130px;
-    background: #151b28;
-    border: 1px solid #1f2d40;
-    border-radius: 12px;
-    padding: 1rem 1.2rem;
-    text-align: center;
-}
-.metric-val {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #00b4ff;
-    line-height: 1.1;
-}
-.metric-lbl {
-    font-size: 0.78rem;
-    color: #5a6a7e;
-    font-weight: 500;
-    margin-top: 2px;
-}
-
-/* ── Skill Tags ──────────────────────────────── */
-.skill-tag {
-    display: inline-block;
-    background: rgba(0,180,255,0.1);
-    border: 1px solid rgba(0,180,255,0.25);
-    color: #7ec8e8;
-    font-size: 0.8rem;
-    font-weight: 500;
-    padding: 3px 12px;
-    border-radius: 20px;
-    margin: 3px 3px 3px 0;
-}
-
-/* ── Match Score Bar ─────────────────────────── */
-.match-bar-wrap { margin: 6px 0 10px; }
-.match-bar-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.82rem;
-    color: #7a8ba0;
-    margin-bottom: 4px;
-}
-.match-bar-bg {
-    background: #1a2030;
-    border-radius: 4px;
-    height: 8px;
-    overflow: hidden;
-}
-.match-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    background: linear-gradient(90deg, #1a78c2, #00b4ff);
-}
-.match-bar-fill.green {
-    background: linear-gradient(90deg, #1aaa77, #64dcb4);
-}
-
-/* ── Chat ────────────────────────────────────── */
-.chat-user-msg {
-    background: linear-gradient(135deg, #0d3a5f, #1a5276);
-    border: 1px solid #1e5080;
-    border-radius: 16px 16px 4px 16px;
-    padding: 0.9rem 1.2rem;
-    color: #d4ecff;
-    font-size: 0.92rem;
-    margin-bottom: 12px;
-    max-width: 80%;
-    margin-left: auto;
-}
-.chat-bot-msg {
-    background: #151b28;
-    border: 1px solid #1f2d40;
-    border-radius: 16px 16px 16px 4px;
-    padding: 0.9rem 1.2rem;
-    color: #c5d8ea;
-    font-size: 0.92rem;
-    margin-bottom: 12px;
-    max-width: 80%;
-}
-.chat-timestamp {
-    font-size: 0.7rem;
-    color: #3a4a5e;
-    margin-top: 3px;
-}
-
-/* ── Buttons ─────────────────────────────────── */
-.stButton > button {
-    background: linear-gradient(135deg, #0d5fa0, #0080cc) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 10px !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-weight: 600 !important;
-    font-size: 0.9rem !important;
-    padding: 0.55rem 1.8rem !important;
-    transition: all 0.2s !important;
-    box-shadow: 0 2px 12px rgba(0,128,204,0.3) !important;
-}
-.stButton > button:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 20px rgba(0,128,204,0.45) !important;
-}
-.stButton > button[kind="secondary"] {
-    background: #1a2030 !important;
-    box-shadow: none !important;
-}
-
-/* ── File Uploader ───────────────────────────── */
-[data-testid="stFileUploader"] {
-    background: #111318;
-    border: 2px dashed #1f2d40;
-    border-radius: 14px;
-    padding: 1rem;
-    transition: border-color 0.2s;
-}
-[data-testid="stFileUploader"]:hover { border-color: #0080cc; }
-
-/* ── Text Area & Input ───────────────────────── */
-textarea, .stTextArea textarea {
-    background: #111318 !important;
-    border: 1px solid #1f2d40 !important;
-    border-radius: 10px !important;
-    color: #c5d8ea !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.9rem !important;
-}
-textarea:focus { border-color: #0080cc !important; box-shadow: 0 0 0 2px rgba(0,128,204,0.15) !important; }
-
-/* ── Tables ──────────────────────────────────── */
-[data-testid="stTable"] { border-radius: 12px; overflow: hidden; }
-thead tr th {
-    background: #151b28 !important;
-    color: #5a8aa0 !important;
-    font-size: 0.8rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.5px !important;
-    border-bottom: 1px solid #1f2d40 !important;
-}
-tbody tr td { background: #111318 !important; color: #c0d4e0 !important; border-bottom: 1px solid #191f2e !important; }
-tbody tr:hover td { background: #141a28 !important; }
-
-/* ── Sidebar ─────────────────────────────────── */
-.sidebar-metric {
-    background: #151b28;
-    border: 1px solid #1f2d40;
-    border-radius: 10px;
-    padding: 0.8rem 1rem;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.sidebar-metric-icon { font-size: 1.2rem; }
-.sidebar-metric-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: #c5d8ea; }
-.sidebar-metric-lbl { font-size: 0.75rem; color: #5a6a7e; }
-
-/* ── Alerts Override ─────────────────────────── */
-[data-testid="stAlert"] {
-    background: #111318 !important;
-    border-radius: 10px !important;
-}
-.stSuccess { border-left: 3px solid #64dcb4 !important; }
-.stWarning { border-left: 3px solid #f5a623 !important; }
-.stInfo    { border-left: 3px solid #00b4ff !important; }
-
-/* ── Spinner ─────────────────────────────────── */
-.stSpinner > div { border-top-color: #00b4ff !important; }
-
-/* ── Divider ─────────────────────────────────── */
-hr { border-color: #1f2330 !important; }
-
-/* ── Chat Input ──────────────────────────────── */
-[data-testid="stChatInput"] > div {
-    background: #111318 !important;
-    border: 1px solid #1f2d40 !important;
-    border-radius: 12px !important;
-}
-[data-testid="stChatInput"] textarea { background: transparent !important; border: none !important; }
-[data-testid="stChatMessageContent"] { color: #c5d8ea !important; }
-</style>
-""", unsafe_allow_html=True)
-
-
-# ─── Hero Banner ──────────────────────────────────────────────────────────────
+# ─── HERO BANNER ──────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero-wrap">
     <div class="hero-badge">AI-POWERED</div>
@@ -612,14 +293,14 @@ with tab2:
         label_visibility="collapsed" # Kart içinde temiz görünüm için
     )
 
-    match_btn = st.button("🔍   En Uygun Adayları Getir", type="primary")
+    match_btn = st.button("🔍    En Uygun Adayları Getir", type="primary")
 
     if match_btn:
         if not job_description.strip():
-            st.warning("⚠️   Lütfen bir iş ilanı metni girin.")
+            st.warning("⚠️    Lütfen bir iş ilanı metni girin.")
         else:
             with st.spinner("Aday havuzunda tarama yapılıyor…"):
-                veri = {}
+                baslangic_zamani = time.time()
                 try:
                     yanit = requests.post(
                         f"{DIFY_BASE_URL}/workflows/run",
@@ -627,7 +308,9 @@ with tab2:
                         json={"inputs": {"ilan_metni": job_description}, "response_mode": "blocking", "user": "streamlit"},
                         timeout=120
                     )
-                    yanit.raise_for_status()
+                    bitis_zamani = time.time()  # ⏱️ Süreyi durdur
+                    harcanan_sure = bitis_zamani - baslangic_zamani
+
                     veri = yanit.json()
                     logger.info("Dify eslestirme yaniti alindi.")
                     eslesme_ham = veri["data"]["outputs"]["eslesme_sonucu"]
@@ -649,7 +332,9 @@ with tab2:
 
             if eslesme_basarili:
                 adaylar = eslesme_sonuc.get("adaylar", [])
-                st.success(f"✅   Eşleştirme tamamlandı! {len(adaylar)} aday değerlendirildi.")
+                st.success(f"✅    Eşleştirme tamamlandı! {len(adaylar)} aday değerlendirildi.")
+                
+                skor_kaydet(job_description, adaylar, harcanan_sure=harcanan_sure)
                 
                 col_l, col_r = st.columns(2, gap="large")
 
@@ -671,12 +356,12 @@ with tab2:
                         cv_id = df_cv.iloc[idx]["ID"]
                         kategori = df_cv.iloc[idx]["Category"]
                         tfidf_html += f"""
-                        <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #1f2330;">
+                        <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #E2E8F0;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                <span style="color:#c5d8ea; font-weight:700;">CV #{cv_id}</span>
-                                <span style="color:#00b4ff; font-weight:700;">{pct}%</span>
+                                <span style="color:#1A202C !important; font-weight:700;">CV #{cv_id}</span>
+                                <span style="color:#3182CE; font-weight:700;">{pct}%</span>
                             </div>
-                            <div style="color:#5a6a7e; font-size:0.78rem; margin-bottom:6px;">{kategori}</div>
+                            <div style="color:#718096; font-size:0.78rem; margin-bottom:6px;">{kategori}</div>
                             <div class="match-bar-bg"><div class="match-bar-fill" style="width:{pct}%"></div></div>
                         </div>"""
                     tfidf_html += '</div>'
@@ -688,22 +373,47 @@ with tab2:
                     for i, aday in enumerate(adaylar[:5]):
                         skor = aday.get("skor", 0)
                         gerekce = aday.get("gerekce", "")
-                        guclu = aday.get("guclu_yonler", [])
                         aday_id = aday.get("aday_id", f"#{i+1}")
                         tag = "✅ Önerilir" if skor >= 70 else "⚡ Potansiyel" if skor >= 50 else "❌ Uygun Değil"
+                        
+                        # Açık temada yeşil badge'i görünür kılmak için arka planı hafif koyulaştırdık
                         llm_html += f"""
-                        <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #1f2330;">
+                        <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #E2E8F0;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                                <span style="color:#c5d8ea; font-weight:700;">Aday {i+1} | {aday_id}</span>
-                                <span style="background:rgba(56,161,105,0.1); border:1px solid rgba(56,161,105,0.25);
-                                            color:#64dcb4; font-size:0.72rem; font-weight:600; padding:2px 8px;
+                                <span style="color:#1A202C !important; font-weight:700;">Aday {i+1} | {aday_id}</span>
+                                <span style="background:rgba(56,161,105,0.15); border:1px solid rgba(56,161,105,0.3);
+                                            color:#276749; font-size:0.72rem; font-weight:700; padding:2px 8px;
                                             border-radius:20px;">{tag} · {skor}/100</span>
                             </div>
-                            <div style="color:#5a6a7e; font-size:0.83rem;">{gerekce}</div>
+                            <div style="color:#4A5568; font-size:0.83rem;">{gerekce}</div>
                         </div>"""
                     llm_html += '</div>'
-                
                     st.markdown(llm_html, unsafe_allow_html=True)
+
+    # ─── GEÇMİŞ EŞLEŞTİRMELER BÖLÜMÜ (🆕 Yeni Eklenen Alan) ───────────────────
+    st.markdown('<br><hr>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">GEÇMİŞ EŞLEŞTİRMELER</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Son Yapılan Analiz Kayıtları</div>', unsafe_allow_html=True)
+    
+    gecmis_yolu = "docs/skor_gecmisi.json"
+    if os.path.exists(gecmis_yolu):
+        try:
+            with open(gecmis_yolu, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if data:
+                # Son 5 aramayı alıp dataframe'e dönüştür
+                df_gecmis = pd.DataFrame(data[:5])
+                st.dataframe(
+                    df_gecmis, 
+                    use_container_width=True,
+                    hide_index=True
+                )
+            else:
+                st.info("Henüz kaydedilmiş bir eşleştirme geçmişi bulunmuyor.")
+        except:
+            st.info("Henüz kaydedilmiş bir eşleştirme geçmişi bulunmuyor.")
+    else:
+        st.info("Henüz kaydedilmiş bir eşleştirme geçmişi bulunmuyor.")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SEKME 3 — İK Asistanı
@@ -811,9 +521,14 @@ with tab3:
             st.session_state.messages = [{"role": "assistant", "content": "Merhaba! 👋 Ben AI Destekli CV Analiz Sistemi İK Asistanınızım. Nasıl yardımcı olabilirim?"}]
             st.session_state.conversation_id = ""
             st.rerun()
+
 # ══════════════════════════════════════════════════════════════════════════════
-# SIDEBAR
+# SIDEBAR ARAYÜZÜ
 # ══════════════════════════════════════════════════════════════════════════════
+# API key tanımlı mı kontrolünü fonksiyona yolluyoruz
+api_kontrol = True if ESLESTIRME_API_KEY else False
+sistem_metrikleri = sidebar_metriklerini_hesapla(api_key_tanimli_mi=api_kontrol)
+
 with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding: 1rem 0 0.5rem;">
@@ -824,19 +539,20 @@ with st.sidebar:
         <div style="font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800;
              background:linear-gradient(90deg,#e0f4ff,#00b4ff);
              -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-             background-clip:text;">CV Analiz Asistanı</div>
-        <div style="color:#7a8ba0; font-size:0.82rem; margin-top:4px;">CV Analiz Asistanı — Kocaeli Üniversitesi 2026</div>
+             background-clip:text;">AI Destekli - CV Analiz Sistemi</div>
+        <div style="color:#7a8ba0; font-size:0.88rem; margin-top:2px;">Yapay Zeka Destekli</div>
     </div>
     """, unsafe_allow_html=True)
 
     st.divider()
     st.markdown('<div style="color:#5a6a7e; font-size:0.75rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px;">SİSTEM DURUMU</div>', unsafe_allow_html=True)
 
+    # ARTIK BURADAKİ TÜM DEĞERLER SİSTEMDEN ANLIK GELİYOR 🎯
     metrics = [
-        ("✅", "Veritabanı", "Bağlı"),
-        ("📁", "Toplam CV", "2484"),
-        ("🤖", "AI Modeli", "Aktif"),
-        ("⚡", "İşlem Hızı", "~1.2s"),
+        ("✅", "Veritabanı", sistem_metrikleri["veritabanı"]),
+        ("📁", "Toplam CV", sistem_metrikleri["toplam_cv"]),
+        ("🤖", "AI Modeli", sistem_metrikleri["ai_durumu"]),
+        ("⚡", "İşlem Hızı", sistem_metrikleri["hiz"]),
     ]
     for icon, label, val in metrics:
         st.markdown(f"""
@@ -852,7 +568,7 @@ with st.sidebar:
     st.divider()
     st.markdown('<div style="color:#5a6a7e; font-size:0.75rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px;">HAFTALIK ÖZET</div>', unsafe_allow_html=True)
 
-    summary_html = """
+    summary_html = f"""
     <div style="background:#151b28; border:1px solid #1f2d40; border-radius:10px; padding:1rem;">
         <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
             <span style="color:#7a8ba0; font-size:0.82rem;">Yeni Başvuru</span>
@@ -860,11 +576,11 @@ with st.sidebar:
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
             <span style="color:#7a8ba0; font-size:0.82rem;">Analiz Yapılan</span>
-            <span style="color:#64dcb4; font-weight:700; font-family:'Syne',sans-serif;">38</span>
+            <span style="color:#64dcb4; font-weight:700; font-family:'Syne',sans-serif;">{sistem_metrikleri["analiz_yapilan"]}</span>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
             <span style="color:#7a8ba0; font-size:0.82rem;">Eşleştirilen</span>
-            <span style="color:#f5a623; font-weight:700; font-family:'Syne',sans-serif;">12</span>
+            <span style="color:#f5a623; font-weight:700; font-family:'Syne',sans-serif;">{sistem_metrikleri["eslestirilen"]}</span>
         </div>
         <div style="display:flex; justify-content:space-between;">
             <span style="color:#7a8ba0; font-size:0.82rem;">Mülakat Planlanan</span>
@@ -873,9 +589,11 @@ with st.sidebar:
     </div>
     """
     st.markdown(summary_html, unsafe_allow_html=True)
+    
+    # ... Alt kısım aynı ...
 
     st.divider()
     st.markdown(
-        '<div style="color:#2a3540; font-size:0.72rem; text-align:center;">Veri Madenciliği Projesi · 2025</div>',
+        '<div style="color:#3a4a5e; font-size:0.72rem; text-align:center;">Veri Madenciliği Projesi · 2026</div>',
         unsafe_allow_html=True,
     )
