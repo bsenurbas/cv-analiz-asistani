@@ -495,15 +495,6 @@ function MetricTile({ icon, value, label }: { icon: React.ReactNode, value: numb
   )
 }
 
-function BrainIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-5.224 4.468C.011 10.51 0 11.458 0 12.5 0 16.642 3.358 20 7.5 20c1.8 0 3.45-.63 4.5-1.5 1.05.87 2.7 1.5 4.5 1.5 4.142 0 7.5-3.358 7.5-7.5 0-1.042-.011-1.99-.779-2.907A4 4 0 0 0 18 5.125 3 3 0 1 0 12 5z"/>
-      <path d="M12 20v-5"/><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M12 2a2 2 0 0 0 0 4"/>
-    </svg>
-  )
-}
-
 function CompareResultCard({ result }: { result: CvCompareResult }) {
   const winner = result.kazanan // "cv1" | "cv2"
 
