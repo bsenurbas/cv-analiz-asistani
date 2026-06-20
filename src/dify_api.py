@@ -3,7 +3,7 @@ import json
 import os
 import tempfile
 from dotenv import load_dotenv
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -21,7 +21,10 @@ DIFY_BASE_URL      = "https://api.dify.ai/v1"
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        os.getenv("FRONTEND_URL", "")
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
