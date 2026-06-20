@@ -8,6 +8,11 @@ import logging
 import os
 import sys
 from dotenv import load_dotenv
+import io
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 
 load_dotenv()
 
@@ -21,6 +26,7 @@ logger = logging.getLogger(__name__)
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.cv_reader import cv_metin_al
 from src.dify_api import cv_yapilandir
+from src.karsilastirma_api import cv_karsilastir
 from utils import skor_kaydet
 from utils import skor_kaydet, sidebar_metriklerini_hesapla
 
@@ -28,6 +34,111 @@ DIFY_API_KEY = os.getenv("DIFY_API_KEY")
 ESLESTIRME_API_KEY = os.getenv("ESLESTIRME_API_KEY")
 IK_ASISTAN_API_KEY = os.getenv("IK_ASISTAN_API_KEY")
 DIFY_BASE_URL = "https://api.dify.ai/v1"
+
+@st.cache_resource
+def kategori_modelini_yukle():
+    df = pd.read_csv("data/processed/Resume_temiz.csv")
+    df["temiz_metin"] = df["temiz_metin"].fillna("").astype(str)
+
+    vektorizer = TfidfVectorizer(
+        ngram_range=(1, 2),
+        max_features=5000,
+        sublinear_tf=True,
+    )
+    X = vektorizer.fit_transform(df["temiz_metin"])
+    y = df["Category"]
+
+    model = LogisticRegression(max_iter=1000, random_state=42)
+    model.fit(X, y)
+
+    return vektorizer, model
+
+
+def kategori_tahmin_et(cv_metni: str) -> tuple[str, float]:
+    vektorizer, model = kategori_modelini_yukle()
+    X = vektorizer.transform([cv_metni])
+
+    kategori = model.predict(X)[0]
+
+    if hasattr(model, "predict_proba"):
+        olasiliklar = model.predict_proba(X)[0]
+        guven = float(np.max(olasiliklar))
+    else:
+        guven = 0.0
+
+    return kategori, guven
+
+
+def beceri_radar_figuru(beceriler: list[str]):
+    beceri_metni = " ".join(str(b).lower() for b in beceriler)
+
+    eksenler = {
+        "Programlama": ["python", "sql", "c#", "c", "javascript", "java"],
+        "AI / Veri": ["machine learning", "deep learning", "nlp", "rag", "llm", "pandas", "numpy", "scikit"],
+        "Web": ["html", "css", "streamlit", "react", "django", "flask"],
+        "Araclar": ["git", "github", "linux", "docker", "vector", "database"],
+        "Test": ["pytest", "unittest", "test", "automation"],
+    }
+
+    skorlar = []
+    for kelimeler in eksenler.values():
+        eslesen = sum(1 for kelime in kelimeler if kelime in beceri_metni)
+        skorlar.append(min(100, int(eslesen / max(len(kelimeler), 1) * 100)))
+
+    etiketler = list(eksenler.keys())
+    acilar = np.linspace(0, 2 * np.pi, len(etiketler), endpoint=False).tolist()
+
+    skorlar += skorlar[:1]
+    acilar += acilar[:1]
+
+    fig, ax = plt.subplots(figsize=(4.6, 4.2), subplot_kw={"polar": True})
+    fig.patch.set_facecolor("#111318")
+    ax.set_facecolor("#111318")
+    ax.plot(acilar, skorlar, color="#00b4ff", linewidth=2)
+    ax.fill(acilar, skorlar, color="#00b4ff", alpha=0.25)
+    ax.set_xticks(acilar[:-1])
+    ax.set_xticklabels(etiketler, color="#c5d8ea", fontsize=9)
+    ax.set_ylim(0, 100)
+    ax.tick_params(colors="#7a8ba0", labelsize=8)
+    ax.spines["polar"].set_color("#1f2d40")
+    ax.set_title("Beceri Radar Grafiği", color="#dce8f0", pad=16, fontsize=11, fontweight="bold")
+    ax.grid(color="#263244", alpha=0.7)
+
+    return fig
+
+
+def deneyim_timeline_figuru(deneyimler: list[dict]):
+    temiz_deneyimler = [
+        d for d in deneyimler
+        if d.get("baslangic") is not None
+    ]
+
+    if not temiz_deneyimler:
+        return None
+
+    fig, ax = plt.subplots(figsize=(6.2, max(2.8, len(temiz_deneyimler) * 0.58)))
+    fig.patch.set_facecolor("#111318")
+    ax.set_facecolor("#111318")
+
+    for i, d in enumerate(temiz_deneyimler):
+        baslangic = int(d.get("baslangic"))
+        bitis = int(d.get("bitis") or 2026)
+        sure = max(1, bitis - baslangic)
+
+        etiket = f'{d.get("pozisyon", "Pozisyon")} - {d.get("sirket", "Şirket")}'
+        ax.barh(i, sure, left=baslangic, color="#64dcb4", alpha=0.85)
+        ax.text(baslangic, i, f"  {etiket}", va="center", color="#dce8f0", fontsize=8)
+
+    ax.set_yticks([])
+    ax.set_xlabel("Yıl", color="#7a8ba0")
+    ax.set_title("Deneyim Zaman Çizelgesi", color="#dce8f0", fontsize=11, fontweight="bold")
+    ax.tick_params(colors="#7a8ba0", labelsize=8)
+    for spine in ax.spines.values():
+        spine.set_color("#1f2d40")
+    ax.grid(axis="x", color="#263244", alpha=0.7)
+    fig.tight_layout()
+
+    return fig
 
 # ─── Sayfa Yapılandırması ─────────────────────────────────────────────────────
 st.set_page_config(
@@ -112,36 +223,6 @@ with tab1:
             
             if analiz_basarili:
                 st.success("✅   Analiz tamamlandı!")
-                cv = st.session_state.get("cv_json", {})
-                deneyim = cv.get("toplam_deneyim_yil", 0) or 0
-                beceriler = cv.get("teknik_beceriler", [])
-                egitim = cv.get("egitim", [])
-                
-                results_html = '<div class="analysis-card">'
-                results_html += f"""
-                <div class="metric-row">
-                    <div class="metric-tile"><div class="metric-val">{int(deneyim)}</div><div class="metric-lbl">Deneyim (yıl)</div></div>
-                    <div class="metric-tile"><div class="metric-val">{len(beceriler)}</div><div class="metric-lbl">Yetenek</div></div>
-                    <div class="metric-tile"><div class="metric-val">{len(egitim)}</div><div class="metric-lbl">Eğitim</div></div>
-                </div><br>"""
-                
-                if egitim:
-                    ilk = egitim[0]
-                    results_html += f'<div style="margin-bottom:12px;"><b>🎓 Eğitim</b><br>{ilk.get("kurum","")}, {ilk.get("bolum","")}, {ilk.get("derece","")}</div>'
-                
-                results_html += '<div style="margin-bottom:12px;"><b>🛠️ Teknik Beceriler</b><br>'
-                results_html += "".join(f'<span class="skill-tag">{s}</span>' for s in beceriler[:12])
-                results_html += '</div>'
-                
-                deneyimler = cv.get("deneyim", [])
-                if deneyimler:
-                    results_html += '<div style="margin-bottom:12px;"><b>💼 Deneyimler</b><br>'
-                    for d in deneyimler:
-                        results_html += f'<div style="margin-bottom:6px; color:#c5d8ea;">• {d.get("pozisyon","")}, <span style="color:#5a6a7e;">{d.get("sirket","")} ({d.get("baslangic","")}–{d.get("bitis","günümüz")})</span></div>'
-                    results_html += '</div>'
-                
-                results_html += '</div>'
-                st.markdown(results_html, unsafe_allow_html=True)
 
         elif not analyze_btn:
             # Boş Durum Kartı
@@ -160,7 +241,123 @@ with tab1:
 
             """, unsafe_allow_html=True)
 
-        st.markdown("---")
+    cv = st.session_state.get("cv_json")
+    if cv:
+        deneyim = cv.get("toplam_deneyim_yil", 0) or 0
+        beceriler = cv.get("teknik_beceriler", [])
+        egitim = cv.get("egitim", [])
+        deneyimler = cv.get("deneyim", [])
+        oneriler = cv.get("oneriler", [])
+        kategori, kategori_guven = kategori_tahmin_et(st.session_state.get("cv_metni", ""))
+
+        st.markdown('<div class="section-label" style="margin-top:1.6rem;">PROFIL KARTI</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">Analiz Sonucu ve Aday Profili</div>', unsafe_allow_html=True)
+
+        profil_col, analiz_col = st.columns([1.05, 1], gap="large")
+
+        with profil_col:
+            egitim_html = ""
+            if egitim:
+                ilk = egitim[0]
+                egitim_html = f'{ilk.get("kurum","")}, {ilk.get("bolum","")}, {ilk.get("derece","")}'
+            else:
+                egitim_html = "Eğitim bilgisi bulunamadı."
+
+            beceri_html = "".join(f'<span class="skill-tag">{s}</span>' for s in beceriler[:14])
+            if not beceri_html:
+                beceri_html = '<span style="color:#7a8ba0;">Teknik beceri bulunamadı.</span>'
+
+            deneyim_html = ""
+            for d in deneyimler[:4]:
+                bitis = d.get("bitis") or "günümüz"
+                deneyim_html += (
+                    '<div style="margin-bottom:8px; color:#c5d8ea; line-height:1.45;">'
+                    '<span style="color:#00b4ff;">•</span> '
+                    f'<b>{d.get("pozisyon","")}</b>, '
+                    f'<span style="color:#7a8ba0;">{d.get("sirket","")} ({d.get("baslangic","")} - {bitis})</span>'
+                    '</div>'
+                )
+            if not deneyim_html:
+                deneyim_html = '<div style="color:#7a8ba0;">Deneyim bilgisi bulunamadı.</div>'
+
+            st.markdown(f"""
+            <div class="card">
+                <div class="metric-row">
+                    <div class="metric-tile"><div class="metric-val">{int(deneyim)}</div><div class="metric-lbl">Deneyim (yıl)</div></div>
+                    <div class="metric-tile"><div class="metric-val">{len(beceriler)}</div><div class="metric-lbl">Yetenek</div></div>
+                    <div class="metric-tile"><div class="metric-val">{len(egitim)}</div><div class="metric-lbl">Eğitim</div></div>
+                </div>
+                <div style="margin-top:1rem;">
+                    <div class="section-label">EĞİTİM</div>
+                    <div style="color:#dce8f0; font-weight:700; line-height:1.45;">{egitim_html}</div>
+                </div>
+                <div style="margin-top:1.1rem;">
+                    <div class="section-label">TEKNİK BECERİLER</div>
+                    <div>{beceri_html}</div>
+                </div>
+                <div style="margin-top:1.1rem;">
+                    <div class="section-label">DENEYİMLER</div>
+                    {deneyim_html}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with analiz_col:
+            st.markdown(f"""
+            <div class="card card-accent">
+                <div class="section-label">KATEGORİ TAHMİNİ</div>
+                <div style="color:#dce8f0; font-size:1.08rem; font-weight:800; line-height:1.45;">
+                    Bu CV en çok şu kategoriye benziyor: {kategori}
+                    <span style="color:#00b4ff;">({kategori_guven * 100:.0f}%)</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            chart_a, chart_b = st.columns(2, gap="medium")
+            with chart_a:
+                st.markdown('<div class="card"><div class="section-label">BECERİ RADARI</div>', unsafe_allow_html=True)
+                if beceriler:
+                    radar_fig = beceri_radar_figuru(beceriler)
+                    st.pyplot(radar_fig, clear_figure=False)
+                    plt.close(radar_fig)
+                else:
+                    st.info("Radar grafiği için beceri bulunamadı.")
+                st.markdown('</div>', unsafe_allow_html=True)
+
+            with chart_b:
+                st.markdown('<div class="card"><div class="section-label">DENEYİM ÇİZELGESİ</div>', unsafe_allow_html=True)
+                timeline_fig = deneyim_timeline_figuru(deneyimler)
+                if timeline_fig is not None:
+                    st.pyplot(timeline_fig, clear_figure=False)
+                    plt.close(timeline_fig)
+                else:
+                    st.info("Zaman çizelgesi için deneyim tarihi bulunamadı.")
+                st.markdown('</div>', unsafe_allow_html=True)
+
+        if oneriler:
+            st.markdown('<div class="section-label" style="margin-top:1rem;">GÜÇLENDİRME ÖNERİLERİ</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-title">CV\'yi Güçlendirmek İçin Öneriler</div>', unsafe_allow_html=True)
+
+            oneri_cols = st.columns(2, gap="large")
+            for i, oneri in enumerate(oneriler):
+                oneri_kategori = oneri.get("kategori", "Öneri")
+                baslik = oneri.get("baslik", "")
+                aciklama = oneri.get("aciklama", "")
+
+                with oneri_cols[i % 2]:
+                    st.markdown(f"""
+                    <div class="card card-green" style="min-height:178px;">
+                        <div class="section-label">{oneri_kategori}</div>
+                        <div style="color:#dce8f0; font-size:1rem; font-weight:800; margin-bottom:8px; line-height:1.35;">
+                            {baslik}
+                        </div>
+                        <div style="color:#7a8ba0; font-size:0.9rem; line-height:1.65;">
+                            {aciklama}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+    st.markdown("---")
     st.markdown('<div class="section-label">ADIM 1B</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-title">Iki CV Karsilastir</div>', unsafe_allow_html=True)
 
